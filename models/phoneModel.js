@@ -26,8 +26,7 @@ module.exports = (sequelize) => {
     },
   }, {
     tableName: 'phone_model',
-    underscored: true,
-    timestamps: false,
+    timestamps: true,
   });
 
   PhoneModel.associate = (models) => {

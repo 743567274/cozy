@@ -36,8 +36,7 @@ module.exports = (sequelize) => {
     },
   }, {
     tableName: 'phone_type',
-    underscored: true,
-    timestamps: false,
+    timestamps: true,
   });
 
   return PhoneType;

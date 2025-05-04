@@ -70,8 +70,7 @@ module.exports = (sequelize) => {
     },
   }, {
     tableName: 'order_goods',
-    underscored: true,
-    timestamps: false,
+    timestamps: true,
   });
 
   OrderGoods.associate = (models) => {

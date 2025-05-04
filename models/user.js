@@ -80,7 +80,7 @@ module.exports = (sequelize) => {
     }
   }, {
     tableName: 'user',
-    timestamps: false
+    timestamps: true
   });
 
   User.associate = (models) => {
