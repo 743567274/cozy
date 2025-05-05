@@ -34,12 +34,5 @@ module.exports = {
         field: 'updated_at' // 映射到数据库的 updated_at 列
       },
     });
-
-    // 添加索引
-    await queryInterface.addIndex('article', ['title']);
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('article');
   }
 };

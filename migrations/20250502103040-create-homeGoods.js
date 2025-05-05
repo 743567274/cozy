@@ -34,25 +34,15 @@ module.exports = {
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '创建时间',
         field: 'created_at' // 映射到数据库的 created_at 列
       },
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         comment: '更新时间',
         field: 'updated_at' // 映射到数据库的 updated_at 列
       },
     });
-
-    // 添加索引
-    await queryInterface.addIndex('home_goods', ['goods_id']);
-    await queryInterface.addIndex('home_goods', ['sort']);
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('home_goods');
   }
 };

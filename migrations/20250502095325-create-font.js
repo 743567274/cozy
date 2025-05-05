@@ -33,24 +33,13 @@ module.exports = {
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '创建时间',
       },
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         comment: '更新时间',
       },
     });
-
-    // 添加索引
-    await queryInterface.addIndex('font', ['name']);
-    await queryInterface.addIndex('font', ['isTop']);
-    await queryInterface.addIndex('font', ['createdAt']);
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('font');
   }
 };

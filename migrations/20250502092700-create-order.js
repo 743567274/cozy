@@ -3,14 +3,13 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('order', {
+    await queryInterface.createTable('orders', {
       id: {
         type: Sequelize.BIGINT, // 使用 BIGINT 存储雪花ID
-        primaryKey: true,
-        autoIncrement: false,
+        primaryKey: true
       },
       userId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
         comment: '用户id',
         references: {
@@ -22,7 +21,7 @@ module.exports = {
       },
       addressId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         comment: '收货地址id',
         references: {
           model: 'address',
@@ -81,26 +80,15 @@ module.exports = {
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '创建时间',
         field: 'created_at'
       },
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         comment: '更新时间',
         field: 'updated_at'
       },
     });
-
-    // 添加索引
-    await queryInterface.addIndex('order', ['userId']);
-    await queryInterface.addIndex('order', ['addressId']);
-    await queryInterface.addIndex('order', ['status']);
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('order');
   }
 };

@@ -10,11 +10,11 @@ module.exports = {
         autoIncrement: true,
       },
       userId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
         comment: '用户id',
         references: {
-          model: 'Users', // Sequelize 默认表名是模型名的复数形式
+          model: 'users',
           key: 'id',
         },
         onUpdate: 'CASCADE',
@@ -61,29 +61,16 @@ module.exports = {
         defaultValue: false,
         comment: '是否删除',
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '创建时间',
-        field: 'created_at' // 明确指定数据库列名
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         comment: '更新时间',
-        field: 'updated_at' // 明确指定数据库列名
       },
     });
-
-    // 添加索引
-    await queryInterface.addIndex('address', ['userId']);
-    await queryInterface.addIndex('address', ['isDefault']);
-    await queryInterface.addIndex('address', ['isDelete']);
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('address');
   }
 };

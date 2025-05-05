@@ -10,7 +10,7 @@ module.exports = {
         autoIncrement: true,
       },
       userId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
         comment: '用户id',
         references: {
@@ -21,7 +21,7 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       orderId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
         comment: '订单id',
         references: {
@@ -72,28 +72,15 @@ module.exports = {
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '创建时间',
         field: 'created_at' // 映射到数据库的 created_at 列
       },
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         comment: '更新时间',
         field: 'updated_at' // 映射到数据库的 updated_at 列
       },
     });
-
-    // 添加索引
-    await queryInterface.addIndex('after_sales', ['userId']);
-    await queryInterface.addIndex('after_sales', ['orderId']);
-    await queryInterface.addIndex('after_sales', ['status']);
-    await queryInterface.addIndex('after_sales', ['refundAmount']);
-    await queryInterface.addIndex('after_sales', ['tracking_number']);
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('after_sales');
   }
-};
+}

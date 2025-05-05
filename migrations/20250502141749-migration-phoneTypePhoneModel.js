@@ -34,32 +34,13 @@ module.exports = {
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '创建时间',
       },
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         comment: '更新时间',
       },
     });
-
-    // 添加复合唯一索引，防止重复关联
-    await queryInterface.addIndex('phone_type_phone_model', 
-      ['phoneTypeId', 'phoneModelId'],
-      {
-        unique: true,
-        name: 'phone_type_model_unique'
-      }
-    );
-
-    // 添加单字段索引
-    await queryInterface.addIndex('phone_type_phone_model', ['phoneTypeId']);
-    await queryInterface.addIndex('phone_type_phone_model', ['phoneModelId']);
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('phone_type_phone_model');
   }
 };

@@ -53,24 +53,13 @@ module.exports = {
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '创建时间',
       },
       updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         comment: '更新时间',
       },
     });
-
-    // 添加索引
-    await queryInterface.addIndex('goods_specification', ['goods_id']);
-    await queryInterface.addIndex('goods_specification', ['price']);
-    await queryInterface.addIndex('goods_specification', ['line_price']);
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('goods_specification');
   }
 };

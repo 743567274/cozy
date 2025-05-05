@@ -67,70 +67,13 @@ module.exports = {
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '创建时间',
       },
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         comment: '更新时间',
       },
     });
-
-    // 添加索引
-    await queryInterface.addIndex('goods', ['name']);
-    await queryInterface.addIndex('goods', ['category_id']);
-    await queryInterface.addIndex('goods', ['price']);
-    await queryInterface.addIndex('goods', ['sales_count']);
-    await queryInterface.addIndex('goods', ['status']);
-    await queryInterface.addIndex('goods', ['createdAt']);
-
-    // 创建多对多关联表
-    await queryInterface.createTable('goods_phone_model', {
-      id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-      },
-      goodsId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'goods',
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
-      },
-      phoneModelId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'phone_model',
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-      },
-    });
-
-    await queryInterface.addIndex('goods_phone_model', ['goodsId']);
-    await queryInterface.addIndex('goods_phone_model', ['phoneModelId']);
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('goods_phone_model');
-    await queryInterface.dropTable('goods');
   }
 };

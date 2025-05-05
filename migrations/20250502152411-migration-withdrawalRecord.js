@@ -10,7 +10,7 @@ module.exports = {
         autoIncrement: true,
       },
       user_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
         comment: '用户id',
         references: {
@@ -49,14 +49,5 @@ module.exports = {
         comment: '更新时间',
       },
     });
-
-    // 添加索引
-    await queryInterface.addIndex('withdrawal_record', ['user_id']);
-    await queryInterface.addIndex('withdrawal_record', ['status']);
-    await queryInterface.addIndex('withdrawal_record', ['create_time']);
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('withdrawal_record');
   }
 };

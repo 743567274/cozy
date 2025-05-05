@@ -10,11 +10,11 @@ module.exports = {
         autoIncrement: true,
       },
       orderId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
         comment: '订单id',
         references: {
-          model: 'order',
+          model: 'orders',
           key: 'id',
         },
         onUpdate: 'CASCADE',
@@ -71,27 +71,15 @@ module.exports = {
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '创建时间',
         field: 'created_at'
       },
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         comment: '更新时间',
         field: 'updated_at'
       },
     });
-
-    // 添加索引
-    await queryInterface.addIndex('order_goods', ['orderId']);
-    await queryInterface.addIndex('order_goods', ['goodsId']);
-    await queryInterface.addIndex('order_goods', ['refund_status']);
-    await queryInterface.addIndex('order_goods', ['is_custom']);
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('order_goods');
   }
 };

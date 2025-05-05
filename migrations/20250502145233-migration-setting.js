@@ -21,15 +21,5 @@ module.exports = {
         comment: '键值',
       },
     });
-
-    // 添加索引
-    await queryInterface.addIndex('setting', ['name'], {
-      unique: true,
-      name: 'setting_name_unique'
-    });
-  },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('setting');
   }
 };

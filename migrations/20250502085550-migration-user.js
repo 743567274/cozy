@@ -3,7 +3,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('user', {
+    await queryInterface.createTable('users', {
       id: {
         type: Sequelize.BIGINT, // 使用 BIGINT 存储雪花ID
         primaryKey: true,
@@ -47,7 +47,7 @@ module.exports = {
         allowNull: true,
         comment: '上级id',
         references: {
-          model: 'user',
+          model: 'users',
           key: 'id'
         },
         onUpdate: 'CASCADE',
@@ -68,31 +68,19 @@ module.exports = {
       last_login: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '最后登录时间'
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-        comment: '创建时间',
-        field: 'created_at'
+        comment: '创建时间'
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-        comment: '更新时间',
-        field: 'updated_at'
+        comment: '更新时间'
       }
     });
-
-    // 添加索引
-    await queryInterface.addIndex('user', ['username']);
-    await queryInterface.addIndex('user', ['openid']);
-    await queryInterface.addIndex('user', ['name']);
-    await queryInterface.addIndex('user', ['superiorId']);
-    await queryInterface.addIndex('user', ['createdAt']);
   },
 
   down: async (queryInterface, Sequelize) => {
