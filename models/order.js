@@ -1,8 +1,8 @@
 // models/order.js
 // 订单模型
 const { DataTypes } = require('sequelize');
-const Snowflake = require('snowflake-id'); // 引入 Snowflake，雪花算法
-const snowflake =  new Snowflake();
+const Snowflake = require('snowflake-id').default;
+const snowflake = new Snowflake();
 
 module.exports = (sequelize) => {
   const Order = sequelize.define('Order', {

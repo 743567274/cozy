@@ -17,6 +17,10 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    token:{
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     createdAt:  {
       type: DataTypes.DATE,
       allowNull: false,
@@ -28,7 +32,7 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.NOW,
     }
   },{
-    tableName: 'administrator',
+    tableName: 'administrators',
     timestamps: true
   })
   return administrator;

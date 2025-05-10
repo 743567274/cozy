@@ -18,12 +18,7 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING(80),
       allowNull: false,
       comment: '机型',
-    },
-    image: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      comment: '机型图片',
-    },
+    }
   }, {
     tableName: 'phone_model',
     timestamps: true,

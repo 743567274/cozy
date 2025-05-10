@@ -1,0 +1,37 @@
+'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up (queryInterface, Sequelize) {
+    /**
+     * Add altering commands here.
+     *
+     * Example:
+     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
+     */
+    // 这个是手机壳的类型表，比如：透明壳，玻璃壳
+    await queryInterface.createTable('phone_model_type', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      type_name: {
+        type: Sequelize.VARCHAR(80),
+        allowNull: false,
+        unique: true,
+        comment: '手机壳类型名称'
+      }
+    })
+  },
+
+  async down (queryInterface, Sequelize) {
+    /**
+     * Add reverting commands here.
+     *
+     * Example:
+     * await queryInterface.dropTable('users');
+     */
+  }
+};

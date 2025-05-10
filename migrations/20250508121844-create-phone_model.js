@@ -9,29 +9,29 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    // 管理员账户表
-    await queryInterface.createTable('administrators', {
+    // 手机型号表
+    await queryInterface.createTable('phone_models', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      username: {
+      brandId: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
-        comment: '管理员用户名'
+        references: {
+          model: 'brands',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+        comment: '手机品牌id'
       },
-      password: {
-        type: Sequelize.STRING,
+      model: {
+        type: Sequelize.VARCHAR(80),
         allowNull: false,
-        comment: '管理员密码'
-      },
-      token: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        comment: '管理员token,用来验证是否唯一登录'
+        comment: '手机型号'
       },
       created_at: {
         allowNull: false,
@@ -42,12 +42,14 @@ module.exports = {
         type: Sequelize.DATE
       }
     })
-    // 初始化一条管理员数据
-    await queryInterface.bulkInsert('administrators', [{
-      username: 'admin',
-      password: '123456',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }])
+  },
+
+  async down (queryInterface, Sequelize) {
+    /**
+     * Add reverting commands here.
+     *
+     * Example:
+     * await queryInterface.dropTable('users');
+     */
   }
 };
