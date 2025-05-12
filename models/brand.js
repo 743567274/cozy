@@ -2,7 +2,7 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  sequelize.define('brands', {
+  const models = sequelize.define('brands', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -11,6 +11,15 @@ module.exports = (sequelize) => {
     brand: {
       type: DataTypes.STRING,
       allowNull: false,
-    }, 
+    },
+    created_at: {
+      allowNull: false,
+      type: DataTypes.DATE
+    },
+    updated_at: {
+      allowNull: false,
+      type: DataTypes.DATE
+    }
   });
+  return models;
 };
