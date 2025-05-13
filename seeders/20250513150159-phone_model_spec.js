@@ -1,5 +1,5 @@
 'use strict';
-const PhoneJson = require('../手机型号.json');
+const PhoneJson = require('../data1.json')
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -12,19 +12,19 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-    const ARR = [];// 新建一个数组
+    const ARR = [];
     let index = 0;
-    Object.keys(PhoneJson).forEach(brand => {
-      index++;
-      ARR.push({
-        id: index,
-        brand: brand,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
-    })
-    await queryInterface.bulkInsert('brands', ARR);
-    console.log('手机品牌数据初始化成功,插入条数:', ARR.length)
+    for (const PhoneType of Object.keys(PhoneJson)) {
+      for (const PhoneModel of PhoneJson[PhoneType]) {
+        index++;
+        ARR.push({
+          id: index,
+          spec_name: PhoneModel
+        })
+      }
+    }
+    await queryInterface.bulkInsert('phone_model_spec', ARR);
+    console.log('手机壳规格数据初始化完成，条数 -> ', ARR.length);
   },
 
   async down(queryInterface, Sequelize) {

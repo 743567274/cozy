@@ -20,7 +20,8 @@ module.exports = {
       spec_name: {
         type: Sequelize.VARCHAR(80),
         allowNull: false,
-        comment: '规格名称'
+        comment: '规格名称',
+        unique: true
       }
     })
   },

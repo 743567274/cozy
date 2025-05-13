@@ -20,6 +20,10 @@ module.exports = (sequelize) => {
       allowNull: false,
       type: DataTypes.DATE
     }
+  },{
+    timestamps: true,
+    tableName: 'brands',
+    modelName: 'Brands'
   });
   return models;
 };
