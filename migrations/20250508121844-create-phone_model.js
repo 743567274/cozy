@@ -32,14 +32,6 @@ module.exports = {
         type: Sequelize.VARCHAR(80),
         allowNull: false,
         comment: '手机型号'
-      },
-      created_at: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updated_at: {
-        allowNull: false,
-        type: Sequelize.DATE
       }
     })
   },

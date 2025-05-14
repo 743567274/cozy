@@ -5,9 +5,9 @@ module.exports = (sequelize, DataTypes) => {
   class PhoneModel extends Model {
     static associate(models) {
       // 与品牌的关联
-      PhoneModel.belongsTo(models.Brand, {
+      PhoneModel.belongsTo(models.Brands, {
         foreignKey: 'brandId',
-        as: 'brand',
+        as: 'brands',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       });
@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'PhoneModel',
     tableName: 'phone_models',
-    timestamps: true
+    timestamps: false
   });
 
   return PhoneModel;

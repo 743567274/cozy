@@ -26,8 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'PhoneModelType',
     tableName: 'phone_model_type',
-    timestamps: false,
-    underscored: true
+    timestamps: false
   });
 
   return PhoneModelType;
