@@ -45,7 +45,7 @@ module.exports = {
         comment: '支付时间'
       },
       shipping_address: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.INTEGER,
         allowNull: true,
         comment: '收货地址',
         references: {

@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       brandId: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'brands',
@@ -29,7 +29,7 @@ module.exports = {
         comment: '手机品牌id'
       },
       model: {
-        type: Sequelize.VARCHAR(80),
+        type: Sequelize.STRING,
         allowNull: false,
         comment: '手机型号'
       }

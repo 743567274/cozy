@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       class_name: {
-        type: Sequelize.VARCHAR(80),
+        type: Sequelize.STRING(80),
         allowNull: false,
         comment: '分类名称'
       },

@@ -21,7 +21,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'material_classes',
+          model: 'material_class',
           key: 'id'
         },
         onDelete: 'CASCADE',
@@ -29,7 +29,7 @@ module.exports = {
         comment: '素材分类id'
       },
       name: {
-        type: Sequelize.VARCHAR(80),
+        type: Sequelize.STRING(80),
         allowNull: false,
         comment: '素材名称'
       },

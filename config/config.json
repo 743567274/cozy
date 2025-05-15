@@ -1,8 +1,8 @@
 {
   "development": {
-    "username": "phone1",
-    "password": "phone1",
-    "database": "phone1",
+    "username": "phone",
+    "password": "phone",
+    "database": "phone",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "port": 3306,

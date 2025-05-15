@@ -19,6 +19,13 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(80),
       allowNull: false,
       comment: '规格名称'
+    },
+    // 上下架
+    status: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+      comment: '手机壳类型状态'
     }
   }, {
     sequelize,

@@ -18,10 +18,17 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       spec_name: {
-        type: Sequelize.VARCHAR(80),
+        type: Sequelize.STRING(80),
         allowNull: false,
         comment: '规格名称',
         unique: true
+      },
+      // 上下架
+      status: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+        comment: '手机壳类型状态'
       }
     })
   },

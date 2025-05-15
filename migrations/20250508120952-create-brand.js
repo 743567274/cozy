@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       brand: {
-        type: Sequelize.VARCHAR(80),
+        type: Sequelize.STRING,
         allowNull: false,
         comment: '手机品牌名称'
       }

@@ -21,7 +21,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'phone_model',
+          model: 'phone_models',
           key: 'id'
         },
         comment: '手机型号id'
@@ -45,7 +45,7 @@ module.exports = {
         comment: '手机壳规格id'
       },
       image: {
-        type: Sequelize.VARCHAR(255),
+        type: Sequelize.STRING(255),
         allowNull: false,
         comment: '手机壳的模型图'
       }

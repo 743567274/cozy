@@ -27,7 +27,7 @@ module.exports = {
         comment: '商品id'
       },
       property_name: {
-        type: Sequelize.VARCHAR(80),
+        type: Sequelize.STRING(80),
         allowNull: false,
         comment: '属性规格名称'
       },

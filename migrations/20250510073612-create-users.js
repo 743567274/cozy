@@ -36,7 +36,7 @@ module.exports = {
         comment: '头像'
       },
       superiorId: {
-        type: Sequelize.BIGINT,
+        type: Sequelize.INTEGER,
         allowNull: true,
         comment: '上级id',
         references: {

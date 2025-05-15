@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       title: {
-        type: Sequelize.VARCHAR(80),
+        type: Sequelize.STRING,
         allowNull: false,
         defaultValue: '文章标题'
       },

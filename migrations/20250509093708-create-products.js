@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       product_name: {
-        type: Sequelize.VARCHAR(80),
+        type: Sequelize.STRING(80),
         allowNull: false,
         comment: '商品名称'
       },

@@ -7,7 +7,7 @@ const caseData = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../data1.js
 
 async function initDatabase() {
   try {
-    await sequelize.sync({ force: true }); // 清空并重建表结构
+    await sequelize.sync({ force: false }); // 清空并重建表结构
 
     const brandMap = {}; // 品牌 => ID
     const modelMap = {}; // 品牌_型号 => ID
