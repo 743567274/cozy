@@ -68,13 +68,13 @@ module.exports = {
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '最后登录时间'
       },
-      created_at: {
+      createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '创建时间'
       },
-      updated_at: {
+      updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),

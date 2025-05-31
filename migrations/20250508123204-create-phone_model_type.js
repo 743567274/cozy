@@ -2,7 +2,7 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     /**
      * Add altering commands here.
      *
@@ -23,6 +23,11 @@ module.exports = {
         unique: true,
         comment: '手机壳类型名称'
       },
+      image: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+        comment: '手机壳类型图片'
+      },
       // 上下架
       status: {
         type: Sequelize.BOOLEAN,
@@ -33,7 +38,7 @@ module.exports = {
     })
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     /**
      * Add reverting commands here.
      *

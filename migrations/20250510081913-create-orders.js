@@ -36,7 +36,7 @@ module.exports = {
       status: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        comment: '订单状态，0为未支付，1为已支付，2为待发货，3为已发货，4为已完成，5为已取消，6为已退款，7为售后中，8为售后完成',
+        comment: '订单状态，0为未支付，1为待发货，2为已发货，3为已完成，4为已取消，5为已退款，6为售后中，7为售后完成',
         defaultValue: 0
       },
       pay_time: {
@@ -83,13 +83,13 @@ module.exports = {
         allowNull: true,
         comment: '备注'
       },
-      updated_at: {
+      updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '更新时间'
       },
-      created_at: {
+      createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),

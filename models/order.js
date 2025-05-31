@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
-      comment: '订单状态，0为未支付，1为已支付，2为待发货，3为已发货，4为已完成，5为已取消，6为已退款，7为售后中，8为售后完成'
+      comment: '订单状态，0为未支付，1为待发货，2为已发货，3为已完成，4为已取消，5为已退款，6为售后中，7为售后完成'
     },
     pay_time: {
       type: DataTypes.DATE,
@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
       comment: '支付时间'
     },
     shipping_address: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.INTEGER,
       allowNull: true,
       comment: '收货地址'
     },

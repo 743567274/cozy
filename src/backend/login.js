@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const { administrator } = require('../../../models');
+const { administrator } = require('../../models');
 
 // 生成随机字符串
 const generateRandomString = (length = 16) => {
@@ -13,6 +13,7 @@ const generateRandomString = (length = 16) => {
     return result;
 }
 
+// 后台登录
 router.post('/', async (req, res) => {
     const { username, password } = req.body;
     try {

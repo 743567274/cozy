@@ -23,13 +23,11 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   AfterSale.init({
-    orderId: {
+    id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-    },
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
     },
     type: {
       type: DataTypes.ENUM('refund', 'exchange', 'resend', 'only_refund'),
@@ -39,65 +37,63 @@ module.exports = (sequelize, DataTypes) => {
     reason: {
       type: DataTypes.TEXT,
       allowNull: true,
+      comment: '用户填写的申请原因',
     },
     images: {
       type: DataTypes.JSON,
       allowNull: true,
+      comment: '用户上传的图片凭证',
     },
     status: {
       type: DataTypes.ENUM(
-        'pending',
-        'rejected',
-        'approved',
-        'returning',
-        'received',
-        'refunded',
-        'exchanged',
-        'resent',
-        'completed'
+        'pending', // 待处理
+        'rejected', // 拒绝
+        'approved', // 通过
+        'returning', // 退货中
+        'received', // 已收到
+        'refunded', // 已退款
+        'exchanged', // 已换货
+        'resent', // 已补发
+        'completed' // 已完成
       ),
       defaultValue: 'pending',
     },
     logisticsName: {
       type: DataTypes.STRING,
       allowNull: true,
+      comment: '物流公司名称',
     },
     logisticsNo: {
       type: DataTypes.STRING,
       allowNull: true,
+      comment: '物流单号',
     },
     resendLogisticsName: {
       type: DataTypes.STRING,
       allowNull: true,
+      comment: '重新发货物流公司名称',
     },
     resendLogisticsNo: {
       type: DataTypes.STRING,
       allowNull: true,
+      comment: '重新发货物流单号',
     },
     refundAmount: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      comment: '退款金额'
     },
     reply: {
       type: DataTypes.TEXT,
       allowNull: true,
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+       comment: '回复内容'
     }
   }, {
     sequelize,
     modelName: 'AfterSale',
     tableName: 'afterSales',
     underscored: true,
-    timestamps: false // 因为你手动用了 created_at 和 updated_at
+    timestamps: true // 因为你手动用了 created_at 和 updated_at
   });
 
   return AfterSale;

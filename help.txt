@@ -1,0 +1,5 @@
+运行迁移文件，创建数据库
+npx sequelize-cli db:migrate
+
+运行种子文件，创建初始数据
+npx sequelize-cli db:seed:all

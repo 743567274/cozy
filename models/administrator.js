@@ -17,21 +17,16 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    token:{
+    token: {
       type: DataTypes.STRING,
       allowNull: true
     },
-    created_at:  {
-      type: DataTypes.DATE,
+    owner: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at:  {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
+      defaultValue: false
     }
-  },{
+  }, {
     tableName: 'administrators',
     timestamps: true
   })

@@ -28,9 +28,9 @@ module.exports = {
         comment: '用户id'
       },
       amount: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.INTEGER,
         allowNull: false,
-        comment: '提现金额'
+        comment: '提现金额,单位为分'
       },
       status: {
         type: Sequelize.INTEGER,
@@ -53,13 +53,13 @@ module.exports = {
         allowNull: false,
         comment: '账户号'
       },
-      create_time: {
+      createAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '创建时间'
       },
-      update_time: {
+      updateAt: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),

@@ -15,14 +15,20 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   Withdrawal.init({
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
+    },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
     amount: {
-      type: DataTypes.DECIMAL(10, 2),
+      type: DataTypes.INTEGER,
       allowNull: false,
-      comment: '提现金额'
+      comment: '提现金额,单位为分'
     },
     status: {
       type: DataTypes.INTEGER,
@@ -44,24 +50,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(255),
       allowNull: false,
       comment: '账户号'
-    },
-    create_time: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
-      comment: '创建时间'
-    },
-    update_time: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
-      comment: '更新时间'
     }
   }, {
     sequelize,
     modelName: 'Withdrawal',
     tableName: 'withdrawals',
-    timestamps: false // 因为使用了 create_time / update_time 而不是 createdAt / updatedAt
+    timestamps: true // 因为使用了 create_time / update_time 而不是 createdAt / updatedAt
   });
 
   return Withdrawal;

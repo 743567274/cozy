@@ -2,7 +2,7 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     /**
      * Add altering commands here.
      *
@@ -33,11 +33,17 @@ module.exports = {
         allowNull: true,
         comment: '管理员token,用来验证是否唯一登录'
       },
-      created_at: {
+      owner: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        comment: '是否是超级管理员'
+      },
+      createdAt: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updated_at: {
+      updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -46,8 +52,9 @@ module.exports = {
     await queryInterface.bulkInsert('administrators', [{
       username: 'admin',
       password: '123456',
-      created_at: new Date(),
-      updated_at: new Date()
+      owner: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
     }])
   }
 };

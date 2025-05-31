@@ -1,77 +1,108 @@
+'use strict';
+
 const fs = require('fs');
 const path = require('path');
-const { sequelize, Brands, PhoneModel, PhoneModelType, PhoneModelSpec, PhoneModelAssociated } = require('../models');
 
-const phoneModelsData = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../手机型号.json')));
-const caseData = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../data1.json')));
+// 修改为你的 JSON 文件实际路径
+const data = require(path.resolve(__dirname, '../init_data/data.json'));
 
-async function initDatabase() {
-  try {
-    await sequelize.sync({ force: false }); // 清空并重建表结构
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    const {
+      Brands,
+      PhoneModel,
+      PhoneModelType,
+      PhoneModelSpec,
+      PhoneModelAssociated
+    } = require('../models');
 
-    const brandMap = {}; // 品牌 => ID
-    const modelMap = {}; // 品牌_型号 => ID
-    const typeMap = {};  // 手机壳类型 => ID
-    const specMap = {};  // 壳规格 => ID
+    const brandMap = new Map();
+    const typeMap = new Map();
+    const specMap = new Map();
+    const phoneModelMap = new Map();
+    const associatedSet = new Set(); // 去重关联项
 
-    // 插入品牌与型号
-    for (const [brandName, models] of Object.entries(phoneModelsData)) {
-      const brand = await Brands.create({ brand: brandName });
-      brandMap[brandName] = brand.id;
-
-      for (const model of models) {
-        const phoneModel = await PhoneModel.create({
-          brandId: brand.id,
-          model
-        });
-        modelMap[`${brandName}_${model}`] = phoneModel.id;
-      }
-    }
-
-    // 插入手机壳类型、规格和关联图
-    for (const [typeName, specs] of Object.entries(caseData)) {
-      let type = typeMap[typeName];
-      if (!type) {
-        const typeRow = await PhoneModelType.create({ model: typeName, brandId: 0 });
-        typeMap[typeName] = typeRow.id;
-        type = typeRow.id;
-      }
-
-      for (const [specName, brands] of Object.entries(specs)) {
-        let spec = specMap[specName];
-        if (!spec) {
-          const specRow = await PhoneModelSpec.create({ spec_name: specName });
-          specMap[specName] = specRow.id;
-          spec = specRow.id;
+    for (const typeName of Object.keys(data)) {
+      // 1. 插入壳类型（带图片）
+      const typeImagePath = `/phone/${typeName}/${typeName}.png`;
+      let [typeInstance] = await PhoneModelType.findOrCreate({
+        where: { type_name: typeName },
+        defaults: {
+          status: true,
+          image: typeImagePath
         }
+      });
+      typeMap.set(typeName, typeInstance);
 
-        for (const [brandName, models] of Object.entries(brands)) {
-          for (const [modelName, info] of Object.entries(models)) {
-            const modelKey = `${brandName}_${modelName}`;
-            const phone_modelId = modelMap[modelKey];
+      const specGroup = data[typeName];
 
-            if (!phone_modelId) {
-              console.warn(`跳过未找到型号：${modelKey}`);
-              continue;
+      for (const specName of Object.keys(specGroup)) {
+        // 2. 插入壳规格
+        let [specInstance] = await PhoneModelSpec.findOrCreate({
+          where: { spec_name: specName },
+          defaults: { status: true }
+        });
+        specMap.set(specName, specInstance);
+
+        const brandGroup = specGroup[specName];
+
+        for (const brandName of Object.keys(brandGroup)) {
+          // 3. 插入品牌
+          let [brandInstance] = await Brands.findOrCreate({
+            where: { brand: brandName }
+          });
+          brandMap.set(brandName, brandInstance);
+
+          const modelGroup = brandGroup[brandName];
+
+          for (const modelName of Object.keys(modelGroup)) {
+            // foreImg 前面添加 /
+            const foreImg = '/' + modelGroup[modelName].foreImg;
+
+            const brandId = brandInstance.id;
+            const modelKey = `${brandId}_${modelName}`;
+
+            let phoneModelInstance;
+            if (!phoneModelMap.has(modelKey)) {
+              [phoneModelInstance] = await PhoneModel.findOrCreate({
+                where: {
+                  brandId: brandId,
+                  model: modelName
+                }
+              });
+              phoneModelMap.set(modelKey, phoneModelInstance);
+            } else {
+              phoneModelInstance = phoneModelMap.get(modelKey);
             }
 
-            await PhoneModelAssociated.create({
-              phone_modelId,
-              phone_typeId: type,
-              phone_model_specId: spec,
-              image: info.foreImg
-            });
+            // 4. 插入关联 PhoneModelAssociated
+            const associatedKey = `${phoneModelInstance.id}_${typeInstance.id}_${specInstance.id}`;
+            if (!associatedSet.has(associatedKey)) {
+              await PhoneModelAssociated.findOrCreate({
+                where: {
+                  phone_modelId: phoneModelInstance.id,
+                  phone_typeId: typeInstance.id,
+                  phone_model_specId: specInstance.id
+                },
+                defaults: {
+                  image: foreImg
+                }
+              });
+              associatedSet.add(associatedKey);
+            }
           }
         }
       }
     }
 
     console.log('✅ 数据初始化完成');
-    process.exit();
-  } catch (err) {
-    console.error('❌ 初始化出错:', err);
-    process.exit(1);
-  }
-}
+  },
 
-initDatabase();
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.bulkDelete('phone_model_associated', null, {});
+    await queryInterface.bulkDelete('phone_models', null, {});
+    await queryInterface.bulkDelete('brands', null, {});
+    await queryInterface.bulkDelete('phone_model_spec', null, {});
+    await queryInterface.bulkDelete('phone_model_type', null, {});
+  }
+};

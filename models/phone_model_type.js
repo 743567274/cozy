@@ -22,6 +22,11 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       comment: '手机壳类型名称'
     },
+    image: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      comment: '手机壳类型图片'
+    },
     // 上下架
     status: {
       type: DataTypes.BOOLEAN,

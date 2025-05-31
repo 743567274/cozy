@@ -24,22 +24,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false,
       defaultValue: '文章内容'
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
     }
   }, {
     sequelize,
     modelName: 'Article',
     tableName: 'article',
-    timestamps: false
+    timestamps: true
   });
 
   return Article;
