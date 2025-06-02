@@ -9,7 +9,8 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'brandId',
         as: 'brands',
         onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
+        onUpdate: 'CASCADE',
+        comment: '手机品牌'
       });
     }
   }
@@ -19,11 +20,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
-    },
-    brandId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      comment: '手机品牌id'
     },
     model: {
       type: DataTypes.STRING(80),

@@ -9,5 +9,6 @@ router.use('/product', require('./product_class')); // 产品分类相关模块
 router.use('/order', require('./order')); // 订单相关模块
 router.use('/withdrawal', require('./withdrawal')); // 提现相关模块
 router.use('/commission', require('./commission'));// 佣金相关模块
+ router.use('/brand', require('./brands')); //  手机品牌相关模块
 
 module.exports = router;
