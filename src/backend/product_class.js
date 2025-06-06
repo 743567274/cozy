@@ -184,7 +184,7 @@ router.post('/product/delete', async (req, res) => {
     }
 })
 
-// 新增商品
+// 新增普通商品
 router.post('/product/add', async (req, res) => {
     try {
         res.status(200).json({
@@ -199,6 +199,22 @@ router.post('/product/add', async (req, res) => {
         });
     }
 });
+
+// 新增半定制商品
+router.post('/product/add/half', async (req, res) => {
+    try {
+        res.status(200).json({
+            message: '新增半定制商品成功',
+            success: true
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: '新增半定制商品失败',
+            error: error.message,
+            success: false
+        });
+    }
+})
 
 //  修改商品
 router.post('/product/update', async (req, res) => {

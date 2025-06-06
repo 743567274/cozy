@@ -1,6 +1,6 @@
+// 手机型号
 'use strict';
 const { Model } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
   class PhoneModel extends Model {
     static associate(models) {

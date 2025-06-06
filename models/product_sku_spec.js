@@ -49,16 +49,12 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: true,
       comment: '是否启用,下架'
     },
-    created_at: {
-      allowNull: false,
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
+    commission: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+      comment: '佣金分成比例'
     },
-    updated_at: {
-      allowNull: false,
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
-    }
   }, {
     sequelize,
     modelName: 'ProductSkuSpec',

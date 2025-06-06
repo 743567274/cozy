@@ -178,4 +178,69 @@ router.post('/phone/add', async (req, res) => {
         })
     }
 })
+
+// 删除手机型号
+router.post('/phone/delete', async (req, res) => {
+    try {
+        const { id } = req.body;
+        if (!typeof id === 'number') {
+            return res.status(400).json({
+                message: 'id不能为空',
+                success: false
+            });
+        }
+        // 删除手机型号
+        await PhoneModel.destroy({
+            where: {
+                id
+            }
+        });
+        return res.status(200).json({
+            message: '删除手机型号成功',
+            success: true
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: '删除手机型号失败',
+            error: error.message,
+            success: false
+        })
+    }
+})
+
+// 修改手机型号
+router.post('/phone/update', async (req, res) => {
+    try {
+        const { id, name } = req.body;
+        if (!typeof id === 'number') {
+            return res.status(400).json({
+                message: 'id不能为空',
+                success: false
+            });
+        }
+        if (!name) {
+            return res.status(400).json({
+                message: '名称不能为空',
+                success: false
+            })
+        }
+        await PhoneModel.update({
+            name
+        }, {
+            where: {
+                id
+            }
+        });
+        return res.status(200).json({
+            message: '修改手机型号成功',
+            success: true
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: '修改手机型号失败',
+            error: error.message,
+            success: false
+        })
+    }
+})
 module.exports = router;

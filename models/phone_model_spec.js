@@ -1,3 +1,4 @@
+// 手机壳规格
 'use strict';
 const { Model } = require('sequelize');
 

@@ -2,7 +2,7 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     /**
      * Add altering commands here.
      *
@@ -26,7 +26,7 @@ module.exports = {
           key: 'id'
         }
       },
-      spec_value_ids:{
+      spec_value_ids: {
         type: Sequelize.JSON,
         allowNull: false,
         comment: '商品规格值id'
@@ -36,7 +36,7 @@ module.exports = {
         allowNull: false,
         comment: '商品价格,价格为分'
       },
-      stock:{
+      stock: {
         type: Sequelize.INTEGER,
         allowNull: false,
         comment: '商品库存'
@@ -46,10 +46,15 @@ module.exports = {
         allowNull: true,
         comment: 'SKU图片'
       },
-      is_active:{
+      is_active: {
         type: Sequelize.BOOLEAN,
         defaultValue: true,
         comment: '是否启用,下架'
+      },
+      commission: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        comment: '佣金比例'
       },
       createdAt: {
         allowNull: false,
@@ -64,7 +69,7 @@ module.exports = {
     })
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     /**
      * Add reverting commands here.
      *
