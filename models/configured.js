@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   Configured.init({
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     key: {
       type: DataTypes.STRING(80),
       allowNull: false,

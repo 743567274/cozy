@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Configured } = require('.././models');
+const { Configured } = require('../../models');
 const KEYS = {
     banners: 'banners', // 海报
     splash: 'splash',// 开屏广告

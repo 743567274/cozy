@@ -34,7 +34,7 @@ router.post('/delete', async (req, res) => {
         // 分类下是否还有商品
         const data_product = await Product.findOne({
             where: {
-                product_class_id: id
+                product_class: id
             }
         });
         if (data_product) {
@@ -64,7 +64,7 @@ router.post('/delete', async (req, res) => {
 // 修改商品分类名称
 router.post('/update', async (req, res) => {
     try {
-        const { id, name } = req.body;
+        const { id, name, desc } = req.body;
         if (typeof id !== 'number') {
             return res.status(400).json({
                 message: 'id不能为空',
@@ -78,7 +78,8 @@ router.post('/update', async (req, res) => {
             });
         }
         await ProductClass.update({
-            name
+            class_name: name,
+            desc
         }, {
             where: {
                 id
@@ -100,19 +101,21 @@ router.post('/update', async (req, res) => {
 // 添加商品分类
 router.post('/add', async (req, res) => {
     try {
-        const { name } = req.body;
+        const { name, desc } = req.body;
         if (!name) {
             return res.status(400).json({
                 message: '名称不能为空',
                 success: false
             });
         }
-        await ProductClass.create({
-            name
+        const data = await ProductClass.create({
+            class_name: name,
+            desc
         });
         return res.status(200).json({
             message: '添加商品分类成功',
-            success: true
+            success: true,
+            data: data
         });
     } catch (error) {
         res.status(500).json({

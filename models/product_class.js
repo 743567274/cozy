@@ -19,13 +19,17 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(80),
       allowNull: false,
       comment: '商品分类名称'
+    },
+    desc: {
+      type: DataTypes.STRING(80),
+      allowNull: true,
+      comment: '商品分类描述'
     }
   }, {
     sequelize,
     modelName: 'ProductClass',
     tableName: 'product_class',
-    timestamps: false,
-    underscored: true
+    timestamps: true
   });
 
   return ProductClass;

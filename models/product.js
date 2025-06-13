@@ -6,8 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // 商品属于一个分类
       Product.belongsTo(models.ProductClass, {
-        foreignKey: 'product_class',
-        as: 'class'
+        foreignKey: 'product_class'
       });
     }
   }
@@ -23,11 +22,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(80),
       allowNull: false,
       comment: '商品名称'
-    },
-    product_class: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      comment: '商品分类'
     },
     type: {
       type: DataTypes.ENUM('standard', 'phone_model'),
@@ -64,7 +58,6 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Product',
     tableName: 'products',
-    underscored: true,
     timestamps: true // 自动处理 created_at 和 updated_at
   });
 
