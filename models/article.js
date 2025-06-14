@@ -24,6 +24,22 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false,
       defaultValue: '文章内容'
+    },
+    views: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      comment: '文章浏览量'
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      comment: '创建时间'
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      comment: '更新时间'
     }
   }, {
     sequelize,

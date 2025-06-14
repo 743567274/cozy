@@ -98,7 +98,7 @@ router.post('/update', async (req, res) => {
 router.get('/list', async (req, res) => {
     try {
         const data_article = await Article.findAll({
-            attributes: ['id', 'title', 'createdAt', 'updatedAt']
+            attributes: ['id', 'title', 'views', 'createdAt', 'updatedAt']
         });
         return res.status(200).json({
             message: '获取文章列表成功',
@@ -117,7 +117,7 @@ router.get('/list', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const { id } = req.query;
-        if (typeof id !== 'number') {
+        if (!id) {
             return res.status(400).json({
                 message: 'id不能为空',
                 success: false

@@ -2,7 +2,7 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     /**
      * Add altering commands here.
      *
@@ -24,8 +24,14 @@ module.exports = {
       },
       content: {
         type: Sequelize.TEXT,
-        allowNull:false,
+        allowNull: false,
         defaultValue: '文章内容'
+      },
+      views: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+        comment: '浏览量'
       },
       createdAt: {
         allowNull: false,
@@ -40,7 +46,7 @@ module.exports = {
     })
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     /**
      * Add reverting commands here.
      *
