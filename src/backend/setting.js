@@ -18,13 +18,13 @@ router.get('/carousel', async (req, res) => {
             return res.status(200).json({
                 message: '获取成功',
                 success: true,
-                data: {}
+                data: []
             });
         }
         res.status(200).json({
             message: '获取成功',
             success: true,
-            data: result
+            data: JSON.parse(result.value)
         });
     } catch (error) {
         res.status(500).json({
@@ -36,10 +36,10 @@ router.get('/carousel', async (req, res) => {
 // 修改首页海报配置
 router.post('/carousel', async (req, res) => {
     try {
-        const { banners } = req.body;
+        const { data } = req.body;
         await Configured.upsert({
             key: KEYS.banners,
-            value: banners
+            value: JSON.stringify(data)
         });
         res.status(200).json({
             message: '修改成功',
@@ -72,7 +72,7 @@ router.get('/splash', async (req, res) => {
         res.status(200).json({
             message: '获取成功',
             success: true,
-            data: result
+            data: JSON.parse(result.value)
         });
     } catch (error) {
         res.status(500).json({
@@ -84,10 +84,10 @@ router.get('/splash', async (req, res) => {
 // 修改开屏广告配置
 router.post('/splash', async (req, res) => {
     try {
-        const { splash } = req.body;
+        const { data } = req.body;
         await Configured.upsert({
             key: KEYS.splash,
-            value: splash
+            value: JSON.stringify(data)
         });
         res.status(200).json({
             message: '修改成功',

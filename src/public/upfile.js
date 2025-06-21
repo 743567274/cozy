@@ -7,30 +7,47 @@ const mac = new qiniu.auth.digest.Mac(process.env.accessKey, process.env.secretK
 
 // 申请上传的token
 router.post('/', async (req, res) => {
-    const { type, filename } = req.body;
-    if (!type || !filename) {
-        res.status(400).json({
-            message: '参数错误',
-            success: false
+    try {
+        const { type, filename } = req.body;
+        if (!type || !filename) {
+            res.status(400).json({
+                message: '参数错误',
+                success: false
+            });
+        }
+        let key = '';
+        switch (type) {
+            case 'article': // 文章图片
+                key = `article/${filename}`;
+                break;
+            case 'screen': // 开屏海报
+                key = `screen/${filename}`;
+                break;
+            case 'carousel': // 轮播图片
+                key = `carousel/${filename}`;
+                break;
+        }
+
+        let options = {
+            scope: `${process.env.scope}:${key}`, // 存储空间名
+            expires: 3600, // 过期时间，单位秒
+        }
+        let putPolicy = new qiniu.rs.PutPolicy(options); // 创建上传策略
+        let uploadToken = putPolicy.uploadToken(mac); // 获取上传token
+        res.json({
+            code: 200,
+            success: true,
+            token: uploadToken,
+            domain: process.env.Image_Server,
+            key: key
+        });
+    } catch (error) {
+        res.json({
+            code: 500,
+            success: false,
+            message: '上传失败'
         });
     }
-    let key = '';
-    if (type === 'article') {
-        key = 'article/' + filename;
-    }
-
-    let options = {
-        scope: `${process.env.scope}:${key}`, // 存储空间名
-        expires: 3600, // 过期时间，单位秒
-    }
-    let putPolicy = new qiniu.rs.PutPolicy(options); // 创建上传策略
-    let uploadToken = putPolicy.uploadToken(mac); // 获取上传token
-    res.json({
-        code: 200,
-        success: true,
-        token: uploadToken,
-        domain: process.env.Image_Server,
-    });
 });
 
 module.exports = router;
