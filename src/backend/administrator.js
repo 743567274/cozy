@@ -6,7 +6,7 @@ const { administrator } = require('../../models');
 router.get('/', async (req, res) => {
     try {
         const data_administrator = await administrator.findAll({
-            attributes: ['id', 'username', 'password', 'owner', 'createdAt', 'updatedAt'],
+            attributes: ['id', 'username', 'owner', 'createdAt', 'updatedAt'],
         });
         return res.status(200).json({
             message: '获取管理员账户成功',
@@ -32,10 +32,23 @@ router.post('/add', async (req, res) => {
                 success: false
             });
         }
+        // 查询是否存在
+        const data_administrator1 = await administrator.findOne({
+            where: {
+                username
+            }
+        });
+        if (data_administrator1) {
+            return res.status(400).json({
+                message: '管理员账户已存在',
+                success: false
+            });
+        }
         const data_administrator = await administrator.create({
             username,
             password,
-            owner: false
+            owner: false,
+
         });
         return res.status(201).json({
             message: '创建管理员账户成功',

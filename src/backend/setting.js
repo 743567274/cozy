@@ -37,10 +37,15 @@ router.get('/carousel', async (req, res) => {
 router.post('/carousel', async (req, res) => {
     try {
         const { data } = req.body;
-        await Configured.upsert({
-            key: KEYS.banners,
-            value: JSON.stringify(data)
-        });
+        // 先尝试查找
+        const existing = await Configured.findOne({ where: { key: KEYS.banners } });
+        if (existing) {
+            // 存在则更新
+            await Configured.update({ value: JSON.stringify(data) }, { where: { key: KEYS.banners } });
+        } else {
+            // 不存在则创建
+            await Configured.create({ key: KEYS.banners, value: JSON.stringify(data) });
+        }
         res.status(200).json({
             message: '修改成功',
             success: true
@@ -85,10 +90,15 @@ router.get('/splash', async (req, res) => {
 router.post('/splash', async (req, res) => {
     try {
         const { data } = req.body;
-        await Configured.upsert({
-            key: KEYS.splash,
-            value: JSON.stringify(data)
-        });
+        // 先尝试查找
+        const existing = await Configured.findOne({ where: { key: KEYS.splash } });
+        if (existing) {
+            // 存在则更新
+            await Configured.update({ value: JSON.stringify(data) }, { where: { key: KEYS.splash } });
+        } else {
+            // 不存在则创建
+            await Configured.create({ key: KEYS.splash, value: JSON.stringify(data) });
+        }
         res.status(200).json({
             message: '修改成功',
             success: true
@@ -100,5 +110,7 @@ router.post('/splash', async (req, res) => {
         })
     }
 })
+
+// 
 
 module.exports = router;
