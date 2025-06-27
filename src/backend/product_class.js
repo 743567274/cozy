@@ -3,18 +3,77 @@ const router = express.Router();
 const { ProductClass, Product } = require('../../models');
 const { where } = require('sequelize');
 
+
+
+// 辅助函数：检查循环引用
+async function checkCircularReference(categoryId, potentialParentId, visited = new Set()) {
+    // 如果要设置的父分类ID是null，表示设为顶级分类，不会有循环引用
+    if (potentialParentId === null) return false;
+
+    // 如果要设置的父分类ID等于当前分类ID，直接返回true
+    if (categoryId === potentialParentId) return true;
+
+    // 防止无限循环
+    if (visited.has(potentialParentId)) return true;
+    visited.add(potentialParentId);
+
+    // 获取潜在父分类
+    const parent = await ProductClass.findByPk(potentialParentId);
+    if (!parent || parent.parent_id === null) return false;
+
+    // 递归检查
+    return await checkCircularReference(categoryId, parent.parent_id, visited);
+}
+
+// 辅助函数：获取分类层级
+const levelCache = new Map();
+
+async function getCategoryLevel(categoryId) {
+    if (levelCache.has(categoryId)) {
+        return levelCache.get(categoryId);
+    }
+
+    const category = await ProductClass.findByPk(categoryId);
+    if (!category || !category.parent_id) {
+        levelCache.set(categoryId, 1);
+        return 1;
+    }
+
+    const parentLevel = await getCategoryLevel(category.parent_id);
+    const level = parentLevel + 1;
+    levelCache.set(categoryId, level);
+    return level;
+}
+
+// 定期清空缓存
+setInterval(() => levelCache.clear(), 5 * 60 * 1000); // 每5分钟清空一次
+
 // 查询商品分类
 router.get('/', async (req, res) => {
     try {
-        const productClasses = await ProductClass.findAll();
+        const categories = await ProductClass.findAll({
+            where: { parent_id: null },
+            attributes: ['id', 'class_name', 'parent_id', 'desc'],
+            order: [['parent_id', 'ASC'], ['id', 'ASC']],
+            //关联
+            include: [
+                {
+                    model: ProductClass,
+                    as: 'children',
+                    attributes: ['id', 'class_name', 'parent_id', 'desc'],
+                    order: [['parent_id', 'ASC'], ['id', 'ASC']]
+                }
+            ]
+        });
+
         res.status(200).json({
-            data: productClasses,
+            data: categories,
             success: true,
-            message: '获取商品分类成功'
-        })
+            message: '获取所有分类成功'
+        });
     } catch (error) {
         res.status(500).json({
-            message: '获取商品分类失败',
+            message: '获取所有分类失败',
             error: error.message,
             success: false
         });
@@ -43,6 +102,18 @@ router.post('/delete', async (req, res) => {
                 success: false
             });
         }
+        // 该分类下是否还有子分类
+        const data_product_class = await ProductClass.findOne({
+            where: {
+                parent_id: id
+            }
+        });
+        if (data_product_class) {
+            return res.status(400).json({
+                message: '该分类下有子分类，不能删除',
+                success: false
+            });
+        }
         await ProductClass.destroy({
             where: {
                 id
@@ -61,65 +132,147 @@ router.post('/delete', async (req, res) => {
     }
 })
 
-// 修改商品分类名称
+// 修改商品分类信息（支持父子分类）
 router.post('/update', async (req, res) => {
     try {
-        const { id, name, desc } = req.body;
-        if (typeof id !== 'number') {
+        const { id, class_name, desc, parent_id } = req.body;
+
+        // 验证参数
+        if (!id) {
             return res.status(400).json({
-                message: 'id不能为空',
+                message: '分类ID不能为空',
                 success: false
             });
         }
-        if (!name) {
+        if (!class_name) {
             return res.status(400).json({
-                message: '名称不能为空',
+                message: '分类名称不能为空',
                 success: false
             });
         }
-        await ProductClass.update({
-            class_name: name,
-            desc
-        }, {
-            where: {
-                id
+
+        // 查找要更新的分类
+        const category = await ProductClass.findByPk(id);
+        if (!category) {
+            return res.status(404).json({
+                message: '分类不存在',
+                success: false
+            });
+        }
+
+        // 检查是否尝试将自己设为父级
+        if (parent_id === id) {
+            return res.status(400).json({
+                message: '不能将分类设置为自己的父级',
+                success: false
+            });
+        }
+
+        // 如果提供了parent_id，验证父分类是否存在
+        if (parent_id !== undefined && parent_id !== null) {
+            const parent = await ProductClass.findByPk(parent_id);
+            if (!parent) {
+                return res.status(400).json({
+                    message: '指定的父分类不存在',
+                    success: false
+                });
             }
+
+            // 检查循环引用
+            const hasCircularRef = await checkCircularReference(id, parent_id);
+            if (hasCircularRef) {
+                return res.status(400).json({
+                    message: '不能将分类设置为自己的子分类或孙分类',
+                    success: false
+                });
+            }
+
+            // 验证分类层级(假设最多3级)
+            const parentLevel = await getCategoryLevel(parent_id);
+            if (parentLevel >= 3) {
+                return res.status(400).json({
+                    message: '分类层级不能超过3级',
+                    success: false
+                });
+            }
+        }
+
+        // 更新分类
+        await category.update({
+            class_name,
+            desc,
+            parent_id: parent_id !== undefined ? parent_id : category.parent_id
         });
-        return res.status(200).json({
-            message: '修改商品分类名称成功',
-            success: true
+
+        // 清空相关缓存
+        levelCache.delete(id);
+        if (category.parent_id !== parent_id) {
+            levelCache.delete(category.parent_id);
+            if (parent_id) levelCache.delete(parent_id);
+        }
+
+        res.status(200).json({
+            data: category,
+            success: true,
+            message: '更新分类成功'
         });
     } catch (error) {
         res.status(500).json({
-            message: '修改商品分类名称失败',
+            message: '更新分类失败',
             error: error.message,
             success: false
         });
     }
 });
 
-// 添加商品分类
+// 添加商品分类（支持父子分类）
 router.post('/add', async (req, res) => {
     try {
-        const { name, desc } = req.body;
-        if (!name) {
+        const { class_name, desc, parent_id = null } = req.body;
+
+        // 验证参数
+        if (!class_name) {
             return res.status(400).json({
-                message: '名称不能为空',
+                message: '分类名称不能为空',
                 success: false
             });
         }
-        const data = await ProductClass.create({
-            class_name: name,
-            desc
+
+        // 如果提供了parent_id，验证父分类是否存在
+        if (parent_id) {
+            const parent = await ProductClass.findByPk(parent_id);
+            if (!parent) {
+                return res.status(400).json({
+                    message: '指定的父分类不存在',
+                    success: false
+                });
+            }
+
+            // 验证分类层级(假设最多3级)
+            const parentLevel = await getCategoryLevel(parent_id);
+            if (parentLevel >= 3) {
+                return res.status(400).json({
+                    message: '分类层级不能超过3级',
+                    success: false
+                });
+            }
+        }
+
+        // 创建分类
+        const category = await ProductClass.create({
+            class_name,
+            desc,
+            parent_id
         });
-        return res.status(200).json({
-            message: '添加商品分类成功',
+
+        res.status(200).json({
+            data: category,
             success: true,
-            data: data
+            message: '添加分类成功'
         });
     } catch (error) {
         res.status(500).json({
-            message: '添加商品分类失败',
+            message: '添加分类失败',
             error: error.message,
             success: false
         });

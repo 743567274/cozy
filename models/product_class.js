@@ -5,6 +5,15 @@ module.exports = (sequelize, DataTypes) => {
   class ProductClass extends Model {
     static associate(models) {
       // 若有产品表等与分类关联，可以在此设置 belongsTo/hasMany
+      // 自关联设置
+      ProductClass.hasMany(models.ProductClass, {
+        as: 'children',
+        foreignKey: 'parent_id'
+      });
+      ProductClass.belongsTo(models.ProductClass, {
+        as: 'parents',
+        foreignKey: 'parent_id'
+      });
     }
   }
 
@@ -19,6 +28,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(80),
       allowNull: false,
       comment: '商品分类名称'
+    },
+    parent_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      comment: '父级分类id'
     },
     desc: {
       type: DataTypes.STRING(80),

@@ -137,6 +137,7 @@ router.get('/phone', async (req, res) => {
             include: [
                 {
                     model: Brands,
+                    as: 'brands',
                     attributes: ['brand']
                 }
             ]
@@ -157,19 +158,36 @@ router.get('/phone', async (req, res) => {
 // 添加手机型号
 router.post('/phone/add', async (req, res) => {
     try {
-        const { brand_id, name } = req.body;
-        if (!typeof brand_id === 'number') {
+        const { brand, name } = req.body;
+        if (!brand || !name) {
             return res.status(400).json({
-                message: '品牌id不能为空',
+                message: '品牌或者型号不能为空',
                 success: false
             });
         }
-        if (!name) {
-            return res.status(400).json({
-                message: '名称不能为空',
-                success: false
-            })
+        let data_brand = await Brands.findOne({
+            where: {
+                brand
+            }
+        });
+        if (!data_brand) {
+            // 如果不存在则创建品牌
+            data_brand = await Brands.create({
+                brand
+            });
         }
+        const modelData = await PhoneModel.create({
+            brandId: data_brand.id,
+            model: name
+        });
+        return res.status(200).json({
+            message: '添加手机型号成功',
+            success: true,
+            data: {
+                brand: data_brand,
+                model: modelData
+            }
+        });
     } catch (error) {
         res.status(500).json({
             message: '添加手机型号失败',
@@ -183,7 +201,9 @@ router.post('/phone/add', async (req, res) => {
 router.post('/phone/delete', async (req, res) => {
     try {
         const { id } = req.body;
-        if (!typeof id === 'number') {
+        // id 为数组
+
+        if (!typeof id === 'array' || id.length === 0) {
             return res.status(400).json({
                 message: 'id不能为空',
                 success: false
@@ -192,7 +212,7 @@ router.post('/phone/delete', async (req, res) => {
         // 删除手机型号
         await PhoneModel.destroy({
             where: {
-                id
+                id: id
             }
         });
         return res.status(200).json({

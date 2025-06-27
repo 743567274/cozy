@@ -26,6 +26,18 @@ module.exports = {
         allowNull: true,
         comment: '描述'
       },
+      parent_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: null,
+        comment: '父级分类id',
+        references: {
+          model: 'product_class',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'set null'
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
