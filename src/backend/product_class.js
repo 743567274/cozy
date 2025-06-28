@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { ProductClass, Product } = require('../../models');
 const { where } = require('sequelize');
-
-
+const SnowflakeID = require('snowflake-id').default;
+const snowflake = new SnowflakeID({ mid: 1 }); // 机器 ID 自定义
 
 // 辅助函数：检查循环引用
 async function checkCircularReference(categoryId, potentialParentId, visited = new Set()) {
@@ -387,5 +387,21 @@ router.post('/product/update', async (req, res) => {
         });
     }
 });
+
+// 申请一个商品ID
+router.get('/product/apply', async (req, res) => {
+    try {
+        const product_id = snowflake.generate();
+        res.status(200).json({
+            data: product_id,
+            success: true,
+            message: '申请商品ID成功'
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: '申请商品ID失败',
+        })
+    }
+})
 
 module.exports = router;

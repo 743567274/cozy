@@ -26,6 +26,16 @@ router.post('/', async (req, res) => {
             case 'carousel': // 轮播图片
                 key = `carousel/${filename}`;
                 break;
+            case 'product_main': // 商品主图
+                const { id } = req.body
+                if (!id) {
+                    return res.status(400).json({
+                        message: '商品id不能为空',
+                        success: false
+                    });
+                }
+                key = `product_main/${id}/${filename}`;
+                break;
         }
 
         let options = {

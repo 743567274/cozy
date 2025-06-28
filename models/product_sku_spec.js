@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'productId',
         as: 'product'
       });
+      // 创作者ID属于用户
+      ProductSkuSpec.belongsTo(models.User, {
+        foreignKey: 'creatorsId',
+        as: 'creators'
+      });
     }
   }
 
@@ -55,6 +60,17 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0,
       comment: '佣金分成比例'
     },
+    creatorsId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      comment: '创作者ID'
+    },
+    creators_commission: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+      comment: '创作者佣金分成比例'
+    }
   }, {
     sequelize,
     modelName: 'ProductSkuSpec',

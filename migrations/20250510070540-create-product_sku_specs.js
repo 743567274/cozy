@@ -56,6 +56,20 @@ module.exports = {
         allowNull: false,
         comment: '佣金比例'
       },
+      creatorsId: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        comment: '创作者ID',
+        references: {
+          model: 'users',
+          key: 'id'
+        }
+      },
+      creators_commission: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        comment: '创作者佣金比例'
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
