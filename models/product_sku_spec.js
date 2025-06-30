@@ -29,6 +29,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       comment: '商品id'
     },
+    name: {
+      type: DataTypes.STRING(80),
+      allowNull: false,
+      comment: '商品规格名称'
+    },
     spec_value_ids: {
       type: DataTypes.JSON,
       allowNull: false,

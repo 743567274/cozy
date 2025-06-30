@@ -101,7 +101,7 @@ router.post('/phone_case/update', async (req, res) => {
 router.get('/phone_case/list', async (req, res) => {
     try {
         const data_phone_case = await PhoneModelType.findAll({
-            attributes: ['id', 'type_name', 'image', 'status', 'createdAt', 'updatedAt']
+            attributes: ['id', 'type_name', 'image', 'status']
         });
         return res.status(200).json({
             message: '获取手机壳类型列表成功',
