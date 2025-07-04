@@ -211,22 +211,101 @@ router.post('/phone_case/spec/update', async (req, res) => {
 // 获取手机壳规格列表
 router.get('/phone_case/spec/list', async (req, res) => {
     try {
-        const data_phone_case_spec = await PhoneModelSpec.findAll({
-            attributes: ['id', 'spec_name', 'status']
-        });
-        return res.status(200).json({
-            message: '获取手机壳规格列表成功',
-            data: data_phone_case_spec,
-            success: true
-        });
+        const { id } = req.query;
+
+        if (id) {
+            // 方案1：通过关联表查询
+            const specs = await PhoneModelAssociated.findAll({
+                where: { phone_typeId: id },
+                include: [{
+                    model: PhoneModelSpec,
+                    as: 'phoneModelSpec',
+                    attributes: ['id', 'spec_name', 'status'],
+                }],
+                attributes: [], // 不返回关联表本身的字段
+            });
+
+            // 提取规格信息并去重
+            const uniqueSpecs = [];
+            const seenIds = new Set();
+
+            specs.forEach(item => {
+                const specId = item['phoneModelSpec.id'];
+                if (specId && !seenIds.has(specId)) {
+                    seenIds.add(specId);
+                    uniqueSpecs.push({
+                        id: specId,
+                        spec_name: item['phoneModelSpec.spec_name'],
+                        status: item['phoneModelSpec.status']
+                    });
+                }
+            });
+
+            return res.status(200).json({
+                message: '获取手机壳规格列表成功',
+                data: uniqueSpecs,
+                success: true
+            });
+        } else {
+            // 查询所有类型及其规格（分步查询避免内存问题）
+            const types = await PhoneModelType.findAll({
+                where: { status: true },
+                attributes: ['id', 'type_name', 'image', 'status'],
+                raw: true
+            });
+
+            // 为每个类型查询关联的规格
+            const result = await Promise.all(types.map(async type => {
+                const specs = await PhoneModelAssociated.findAll({
+                    where: { phone_typeId: type.id },
+                    include: [{
+                        model: PhoneModelSpec,
+                        as: 'phoneModelSpec',
+                        where: { status: true },
+                        attributes: ['id', 'spec_name', 'status'],
+                        required: true
+                    }],
+                    attributes: [],
+                    raw: true
+                });
+
+                // 提取并去重规格
+                const uniqueSpecs = [];
+                const seenIds = new Set();
+
+                specs.forEach(item => {
+                    const specId = item['phoneModelSpec.id'];
+                    if (specId && !seenIds.has(specId)) {
+                        seenIds.add(specId);
+                        uniqueSpecs.push({
+                            id: specId,
+                            spec_name: item['phoneModelSpec.spec_name'],
+                            status: item['phoneModelSpec.status']
+                        });
+                    }
+                });
+
+                return {
+                    ...type,
+                    phoneModelSpecs: uniqueSpecs
+                };
+            }));
+
+            return res.status(200).json({
+                message: '获取所有手机壳类型及其规格成功',
+                data: result,
+                success: true
+            });
+        }
     } catch (err) {
+        console.error('获取手机壳规格列表失败:', err);
         res.status(500).json({
             message: '获取手机壳规格列表失败',
             error: err.message,
             success: false
-        })
+        });
     }
-})
+});
 
 // 添加手机壳关联
 router.post('/phone_case/associated/add', async (req, res) => {

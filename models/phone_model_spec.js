@@ -5,7 +5,17 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class PhoneModelSpec extends Model {
     static associate(models) {
-      // 若有其他表与此表有关联，可在此定义
+      // 添加与关联表的关联
+      PhoneModelSpec.hasMany(models.PhoneModelAssociated, {
+        foreignKey: 'phone_model_specId',
+        as: 'associatedModels'
+      });
+      PhoneModelSpec.belongsToMany(models.PhoneModelType, {
+        through: models.PhoneModelAssociated,
+        foreignKey: 'phone_model_specId',
+        otherKey: 'phone_typeId',
+        as: 'phoneModelTypes'
+      });
     }
   }
 
