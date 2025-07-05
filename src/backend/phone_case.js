@@ -214,36 +214,22 @@ router.get('/phone_case/spec/list', async (req, res) => {
         const { id } = req.query;
 
         if (id) {
-            // 方案1：通过关联表查询
-            const specs = await PhoneModelAssociated.findAll({
-                where: { phone_typeId: id },
+            // 直接通过PhoneModelSpec查询与指定类型关联的规格
+            const specs = await PhoneModelSpec.findAll({
                 include: [{
-                    model: PhoneModelSpec,
-                    as: 'phoneModelSpec',
-                    attributes: ['id', 'spec_name', 'status'],
+                    model: PhoneModelAssociated,
+                    as: 'associatedModels',
+                    where: { phone_typeId: id },
+                    attributes: []
                 }],
-                attributes: [], // 不返回关联表本身的字段
-            });
-
-            // 提取规格信息并去重
-            const uniqueSpecs = [];
-            const seenIds = new Set();
-
-            specs.forEach(item => {
-                const specId = item['phoneModelSpec.id'];
-                if (specId && !seenIds.has(specId)) {
-                    seenIds.add(specId);
-                    uniqueSpecs.push({
-                        id: specId,
-                        spec_name: item['phoneModelSpec.spec_name'],
-                        status: item['phoneModelSpec.status']
-                    });
-                }
+                attributes: ['id', 'spec_name', 'status'],
+                group: ['PhoneModelSpec.id'],  // 按ID分组
+                raw: true
             });
 
             return res.status(200).json({
                 message: '获取手机壳规格列表成功',
-                data: uniqueSpecs,
+                data: specs,
                 success: true
             });
         } else {
@@ -256,38 +242,21 @@ router.get('/phone_case/spec/list', async (req, res) => {
 
             // 为每个类型查询关联的规格
             const result = await Promise.all(types.map(async type => {
-                const specs = await PhoneModelAssociated.findAll({
-                    where: { phone_typeId: type.id },
+                const specs = await PhoneModelSpec.findAll({
                     include: [{
-                        model: PhoneModelSpec,
-                        as: 'phoneModelSpec',
-                        where: { status: true },
-                        attributes: ['id', 'spec_name', 'status'],
-                        required: true
+                        model: PhoneModelAssociated,
+                        as: 'associatedModels',
+                        where: { phone_typeId: type.id },
+                        attributes: []
                     }],
-                    attributes: [],
+                    attributes: ['id', 'spec_name', 'status'],
+                    group: ['PhoneModelSpec.id'],
                     raw: true
-                });
-
-                // 提取并去重规格
-                const uniqueSpecs = [];
-                const seenIds = new Set();
-
-                specs.forEach(item => {
-                    const specId = item['phoneModelSpec.id'];
-                    if (specId && !seenIds.has(specId)) {
-                        seenIds.add(specId);
-                        uniqueSpecs.push({
-                            id: specId,
-                            spec_name: item['phoneModelSpec.spec_name'],
-                            status: item['phoneModelSpec.status']
-                        });
-                    }
                 });
 
                 return {
                     ...type,
-                    phoneModelSpecs: uniqueSpecs
+                    phoneModelSpecs: specs
                 };
             }));
 
