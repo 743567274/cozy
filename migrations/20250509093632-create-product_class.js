@@ -38,6 +38,16 @@ module.exports = {
         onUpdate: 'cascade',
         onDelete: 'set null'
       },
+      share_title: {
+        type: Sequelize.STRING(80),
+        allowNull: true,
+        comment: '分享标题'
+      },
+      share_img: {
+        type: Sequelize.STRING(80),
+        allowNull: true,
+        comment: '分享图片'
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

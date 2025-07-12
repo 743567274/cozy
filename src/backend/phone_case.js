@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { PhoneModelType, PhoneModelSpec, PhoneModelAssociated } = require('../../models')
+const { PhoneModelType, PhoneModelSpec, PhoneModelAssociated, PhoneModel } = require('../../models')
 
 // 增加手机壳类型
 router.post('/phone_case/add', async (req, res) => {
@@ -371,6 +371,51 @@ router.post('/phone_case/associated/update', async (req, res) => {
     } catch (err) {
         res.status(500).json({
             message: '修改手机壳关联失败',
+            error: err.message,
+            success: false
+        })
+    }
+})
+
+// 获取手机壳类型关联的型号列表
+router.get('/phone/case/phone', async (req, res) => {
+    try {
+        // phone_typeid 手机型号id
+        // phone_specid 手机规格id
+        const { phone_typeid, phone_specid, page = 1 } = req.query;
+        if (!phone_typeid || !phone_specid) {
+            return res.status(400).json({
+                message: 'id不能为空',
+                success: false
+            });
+        }
+        const pageSize = 10;// 每页数量
+        const { rows, count } = await PhoneModelAssociated.findAndCountAll({
+            where: {
+                phone_typeId: phone_typeid,
+                phone_model_specId: phone_specid
+            },
+            include: [
+                {
+                    model: PhoneModel,
+                    as: 'phoneModel'
+                }
+            ],
+            // 页数
+            offset: (page - 1) * pageSize,
+            // 每页数量
+            limit: pageSize
+        })
+        res.status(200).json({
+            data: rows,
+            success: true,
+            total: count,
+            limit: pageSize,
+            message: '查询手机型号成功'
+        })
+    } catch (err) {
+        res.status(500).json({
+            message: '获取手机壳类型关联的型号失败',
             error: err.message,
             success: false
         })

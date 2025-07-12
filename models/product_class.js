@@ -38,6 +38,26 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(80),
       allowNull: true,
       comment: '商品分类描述'
+    },
+    share_title: {
+      type: DataTypes.STRING(80),
+      allowNull: true,
+      comment: '商品分享标题'
+    },
+    share_desc: {
+      type: DataTypes.STRING(80),
+      allowNull: true,
+      comment: '商品分享描述'
+    },
+    share_title: {
+      type: DataTypes.STRING(80),
+      allowNull: true,
+      comment: '商品分享标题'
+    },
+    share_img: {
+      type: DataTypes.STRING(80),
+      allowNull: true,
+      comment: '商品分享图片'
     }
   }, {
     sequelize,
