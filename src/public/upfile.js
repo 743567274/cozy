@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
             case 'carousel': // 轮播图片
                 key = `carousel/${filename}`;
                 break;
-            case 'product_main': // 商品主图
+            case 'product_main' || 'product_video': // 商品主图
                 const { id } = req.body
                 if (!id) {
                     return res.status(400).json({
