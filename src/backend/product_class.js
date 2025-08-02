@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { ProductClass, Product } = require('../../models');
-const { where } = require('sequelize');
+const { ProductClass, Product, ProductSkuSpec, User, PhoneModelSpec, PhoneModelAssociated } = require('../../models');
 const SnowflakeID = require('snowflake-id').default;
 const snowflake = new SnowflakeID({ mid: 1 }); // 机器 ID 自定义
 
@@ -358,7 +357,86 @@ router.post('/product/add', async (req, res) => {
 
 // 新增半定制商品
 router.post('/product/add/half', async (req, res) => {
+    // 新建事务
+    const t = await sequelize.transaction();
     try {
+        const { data } = req.body;
+        // 检查分类以及子分类是否存在
+        const dataClass = data.class; // [1,2] 1为父分类id，2为子分类id
+        if (!dataClass || dataClass.length !== 2) {
+            return res.status(400).json({
+                message: '分类不能为空',
+                success: false
+            });
+        }
+        const dataCassParent = await ProductClass.findByPk(dataClass[0]);
+        if (!dataCassParent) {
+            return res.status(400).json({
+                message: '指定的分类不存在',
+                success: false
+            });
+        }
+        const dataClassChild = await ProductClass.findByPk(dataClass[1]);
+        if (!dataClassChild) {
+            return res.status(400).json({
+                message: '指定的分类不存在',
+                success: false
+            });
+        }
+        // 验证创作者ID是否正确
+        const dataCreatorsId = data.creatorsId; //取出创作者ID
+        if (dataCreatorsId) {
+            const creators = await User.findByPk(dataCreatorsId);
+            if (!creators) {
+                return res.status(400).json({
+                    message: '指定的创作者不存在',
+                    success: false
+                });
+            }
+        }
+        // 验证SKU所属的手机壳类型分类是否存在
+        for (let i = 0; i < data.skus; i++) {
+            const phoneModel = data.skus[i].phoneModel; // SKU关联的手机壳类型
+            // phoneModel为数组[1,2]，数组0代表手机壳类型，数组1代表颜色
+            const phoneModelType = await PhoneModelSpec.findByPk(phoneModel[0]);
+            if (!phoneModelType) {
+                return res.status(400).json({
+                    message: `第${i + 1}个属性关联的指定的手机壳类型不存在`,
+                    success: false
+                });
+            }
+            const phoneModelColor = await PhoneModelAssociated.findByPk(phoneModel[1]);
+            if (!phoneModelColor) {
+                return res.status(400).json({
+                    message: `第${i + 1}个属性关联的指定的手机壳颜色不存在`,
+                    success: false
+                });
+            }
+        }
+        // 新建商品
+        const product = await Product.create({
+            product_name: data.product_name,
+            type: 'phone_model',
+            images: data.image,
+            description: data.description,
+            commission: data.commission || 0,
+            creatorsId: data.creatorsId || null,
+            creators_commission: data.creators_commission || 0,
+            product_class: dataClass[1],
+            is_active: data.is_active
+        }, { transaction: t })
+        await Promise.all(data.skus.map(async (item, index) => {
+            await ProductSkuSpec.create({
+                productId: product.id,
+                name: item.name,
+                image: item.image,
+                phoneModel: item.phoneModel[0],
+                phoneModelColor: item.phoneModel[1],
+                price: item.price,
+                stock: item.stock,
+                is_active: item.is_active
+            }, { transaction: t })
+        }))
         res.status(200).json({
             message: '新增半定制商品成功',
             success: true
@@ -371,6 +449,36 @@ router.post('/product/add/half', async (req, res) => {
         });
     }
 })
+
+// 检查userid是否存在
+router.post('/user/check', async (req, res) => {
+    try {
+        const { userid } = req.body;
+        if (!userid) {
+            return res.status(200).json({
+                message: '用户id不能为空',
+                success: false
+            });
+        }
+        const user = await User.findByPk(userid);
+        if (!user) {
+            return res.status(200).json({
+                message: '用户不存在',
+                success: false
+            })
+        }
+        return res.status(200).json({
+            message: '用户存在',
+            success: true
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: '检查userid失败',
+            error: error.message,
+            success: false
+        });
+    }
+});
 
 //  修改商品
 router.post('/product/update', async (req, res) => {

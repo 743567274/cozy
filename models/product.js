@@ -8,6 +8,11 @@ module.exports = (sequelize, DataTypes) => {
       Product.belongsTo(models.ProductClass, {
         foreignKey: 'product_class'
       });
+      // 创作者ID属于用户
+      Product.belongsTo(models.User, {
+        foreignKey: 'creatorsId',
+        as: 'creators'
+      });
     }
   }
 
@@ -39,20 +44,33 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0,
       comment: '商品浏览量'
     },
-    price: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      comment: '商品价格，单位为分'
-    },
-    line_price: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      comment: '商品划线价，单位为分'
-    },
     description: {
       type: DataTypes.TEXT,
       allowNull: false,
       comment: '商品描述'
+    },
+    commission: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+      comment: '佣金分成比例'
+    },
+    creatorsId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      comment: '创作者ID'
+    },
+    creators_commission: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+      comment: '创作者佣金分成比例'
+    },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+      comment: '商品是否激活'
     }
   }, {
     sequelize,

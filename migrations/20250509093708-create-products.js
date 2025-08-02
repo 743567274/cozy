@@ -47,20 +47,29 @@ module.exports = {
         defaultValue: 0,
         comment: '商品浏览量'
       },
-      price: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        comment: '商品价格，单位为分'
-      },
-      line_price: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        comment: '商品划线价，单位为分'
-      },
       description: {
         type: Sequelize.TEXT,
         allowNull: false,
         comment: '商品描述'
+      },
+      commission: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        comment: '商品佣金'
+      },
+      creatorsId: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        comment: '创建者ID',
+        references: {
+          model: 'users',
+          key: 'id'
+        }
+      },
+      creators_commission: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        comment: '创建者佣金'
       },
       createdAt: {
         allowNull: false,
