@@ -43,6 +43,11 @@ module.exports = {
         allowNull: true,
         comment: '分享标题'
       },
+      share_desc: {
+        type: Sequelize.STRING(80),
+        allowNull: true,
+        comment: '分享描述'
+      },
       share_img: {
         type: Sequelize.STRING(80),
         allowNull: true,

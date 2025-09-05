@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'productId',
         as: 'product'
       });
+      // SpecName 有多个 SpecValue
+      SpecName.hasMany(models.SpecValue, {
+        foreignKey: 'spec_name_id',
+        as: 'specValues'  // ✅ 注意：这里是 specValues（复数），用于 include
+      });
     }
   }
 
@@ -19,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    productId: {
+    product_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       comment: '商品id'
@@ -29,14 +34,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       comment: '属性规格名称'
     },
-    combination: {
-      type: DataTypes.JSON,
-      allowNull: false,
-      comment: '属性规格组合'
-    },
     price: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
+      defaultValue: 0,
       comment: '价格,单位为分'
     }
   }, {

@@ -32,14 +32,24 @@ module.exports = {
         }
       },
       type: {
-        type: Sequelize.ENUM('standard', 'phone_model'),// 标准,手机壳
+        type: Sequelize.INTEGER,
         allowNull: false,
-        comment: '商品类型'
+        comment: '商品类型:[1普通商品,2虚拟商品]'
       },
-      images: {
+      image: {
         type: Sequelize.JSON,
         allowNull: false,
         comment: '商品图片JSON'
+      },
+      video: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+        comment: '商品视频'
+      },
+      detail: {
+        type: Sequelize.JSON,
+        allowNull: false,
+        comment: '商品详情'
       },
       browse: {
         type: Sequelize.INTEGER,
@@ -52,12 +62,14 @@ module.exports = {
         allowNull: false,
         comment: '商品描述'
       },
-      commission: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        comment: '商品佣金'
+      // 置顶
+      top: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        comment: '商品是否置顶'
       },
-      creatorsId: {
+      creators_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         comment: '创建者ID',
@@ -71,11 +83,17 @@ module.exports = {
         allowNull: true,
         comment: '创建者佣金'
       },
-      createdAt: {
+      is_active: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+        comment: '商品是否激活'
+      },
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }

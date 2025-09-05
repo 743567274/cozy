@@ -17,7 +17,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      productId: {
+      product_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -30,11 +30,6 @@ module.exports = {
         type: Sequelize.STRING(80),
         allowNull: false,
         comment: '属性规格名称'
-      },
-      combination: {
-        type: Sequelize.JSON,
-        allowNull: false,
-        comment: '属性规格组合'
       },
       price: {
         type: Sequelize.INTEGER,

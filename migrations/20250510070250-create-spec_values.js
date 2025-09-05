@@ -17,7 +17,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      spec_nameId:  {
+      spec_name_id:  {
         type: Sequelize.INTEGER,
         allowNull: false,
         comment: '规格名称id',

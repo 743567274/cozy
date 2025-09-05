@@ -6,8 +6,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // 每个规格值属于一个规格名称
       SpecValue.belongsTo(models.SpecName, {
-        foreignKey: 'spec_nameId',
-        as: 'specName',
+        foreignKey: 'spec_name_id',
+        as: 'specValues',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       });
@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    spec_nameId: {
+    spec_name_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       comment: '规格名称id'
