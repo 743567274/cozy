@@ -2,7 +2,7 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     /**
      * Add altering commands here.
      *
@@ -17,7 +17,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      spec_name_id:  {
+      spec_name_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         comment: '规格名称id',
@@ -33,10 +33,15 @@ module.exports = {
         allowNull: false,
         comment: '规格值'
       },
+      original_value_id: {
+        type: Sequelize.STRING(10),
+        allowNull: false,
+        comment: '前端传来的原始值ID后缀，如 0, 1'
+      }
     })
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     /**
      * Add reverting commands here.
      *

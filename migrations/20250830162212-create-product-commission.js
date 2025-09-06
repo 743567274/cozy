@@ -10,7 +10,7 @@ module.exports = {
         allowNull: false
       },
       product_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
         references: {
           model: 'products',
@@ -52,9 +52,9 @@ module.exports = {
     });
 
     // 创建索引以提高查询性能
-    await queryInterface.addIndex('product_commission', ['productId']);
+    await queryInterface.addIndex('product_commission', ['product_id']);
     await queryInterface.addIndex('product_commission', ['commissionLevel']);
-    await queryInterface.addIndex('product_commission', ['productId', 'commissionLevel'], {
+    await queryInterface.addIndex('product_commission', ['product_id', 'commissionLevel'], {
       unique: true // 确保每个商品每个佣金级别只有一条记录
     });
   },

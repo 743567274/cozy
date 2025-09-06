@@ -424,16 +424,18 @@ router.post('/product/save', async (req, res) => {
             class: classIds = [],
             specs = [],
             skus = [],
-            distributionLevel = 0,
-            commission: firstLevelRate = 0,
-            secondCommission = 0
+            distributionLevel = 0, // 分销层级
+            commission: firstLevelRate = 0, // 一级分销比例
+            secondCommission = 0, // 二级分销比例
         } = req.body;
+
         if (!productId) {
             return res.status(400).json({
                 message: '商品ID不能为空',
                 success: false
             });
         }
+
         // 验证商品主图是否存在
         if (!image || image.length === 0) {
             return res.status(400).json({
@@ -529,8 +531,8 @@ router.post('/product/save', async (req, res) => {
         }
 
         // ========== 处理规格 Specs & SpecValues ==========
-        const specNameMap = {}; // tempSpecId → realSpecNameId
-        const specValueMap = {}; // `${tempSpecId}_${value}` → realValueId
+        const specNameMap = {}; // originalId → realSpecNameId
+        const specValueMap = {}; // `${originalId}_${original_value_id}` → realValueId
 
         // 获取当前数据库中的规格和值
         const dbSpecs = await SpecName.findAll({
@@ -538,60 +540,70 @@ router.post('/product/save', async (req, res) => {
             include: [{
                 model: SpecValue,
                 as: 'specValues',
-                attributes: ['id', 'value']
+                attributes: ['id', 'value', 'original_value_id']
             }],
             transaction: t
         });
 
-        // 建立 value → specValue.id 映射
+        // 建立 value → specValue.id 映射（基于 original_value_id）
         const dbValueToIdMap = {};
         dbSpecs.forEach(spec => {
             spec.specValues.forEach(v => {
-                dbValueToIdMap[`${spec.id}_${v.value}`] = v.id;
+                dbValueToIdMap[`${spec.original_id}_${v.original_value_id}`] = v.id;
             });
         });
 
         for (const spec of specs) {
-            const { id: tempSpecId, name: propertyName, values = [] } = spec;
+            const { id: originalId, name: propertyName, values = [] } = spec;
 
-            if (!propertyName || !Array.isArray(values)) continue;
+            if (!originalId || !propertyName || !Array.isArray(values)) continue;
 
-            // 查找是否已有同名规格（避免重复创建）
-            let dbSpec = dbSpecs.find(s => s.property_name === propertyName);
+            // 查找是否已有相同 originalId 的规格
+            let dbSpec = dbSpecs.find(s => s.original_id === originalId);
 
             if (!dbSpec) {
-                // 创建新规格
+                // 创建新规格，并保存 originalId
                 dbSpec = await SpecName.create({
                     product_id: product.id,
-                    property_name: propertyName
+                    property_name: propertyName,
+                    original_id: originalId
                 }, { transaction: t });
 
-                // 添加到 dbSpecs 以便后续查找
                 dbSpecs.push(dbSpec);
                 dbSpec.specValues = [];
+            } else {
+                // 更新名称（以防前端修改）
+                if (dbSpec.property_name !== propertyName) {
+                    await dbSpec.update({ property_name: propertyName }, { transaction: t });
+                }
             }
 
             // 记录映射
-            specNameMap[tempSpecId] = dbSpec.id;
+            specNameMap[originalId] = dbSpec.id;
 
-            for (const value of values) {
+            // ✅ 循环保存每个值
+            for (let i = 0; i < values.length; i++) {
+                const valueObj = values[i];
+                const value = typeof valueObj === 'string' ? valueObj : valueObj.value;
+                const originalValueId = typeof valueObj === 'string' ? String(i) : valueObj.id;
+
                 if (!value) continue;
 
-                const dbValueKey = `${dbSpec.id}_${value}`;
+                const dbValueKey = `${originalId}_${originalValueId}`;
                 let valueId = dbValueToIdMap[dbValueKey];
 
                 if (!valueId) {
-                    // 创建新值
                     const newValue = await SpecValue.create({
                         spec_name_id: dbSpec.id,
-                        value
+                        value,
+                        original_value_id: originalValueId
                     }, { transaction: t });
                     valueId = newValue.id;
                     dbValueToIdMap[dbValueKey] = valueId;
                 }
 
-                // 映射：临时规格ID + 值 → 真实 valueId
-                specValueMap[`${tempSpecId}_${value}`] = valueId;
+                // 映射：原始ID + 原始值ID → 真实 valueId
+                specValueMap[dbValueKey] = valueId;
             }
         }
 
@@ -616,28 +628,16 @@ router.post('/product/save', async (req, res) => {
                 });
             }
 
-            // 映射临时 valueId 到真实 valueId
-            const realValueIds = [];
-            for (let i = 0; i < specValueNames.length; i++) {
-                const tempSpecId = specValueIds[i]?.split('_')?.[0]; // 提取临时规格ID
-                if (!tempSpecId) continue;
-
-                const key = `${tempSpecId}_${specValueNames[i]}`;
-                const realId = specValueMap[key];
-                if (realId) realValueIds.push(realId);
-            }
-
-            if (realValueIds.length === 0) {
-                return res.status(400).json({
-                    message: `SKU ${skuId} 规格值映射失败`,
-                    success: false
-                });
-            }
+            // ✅ 直接使用前端传来的 specValueIds 和 specValueNames（原始ID）
+            // 不再映射为数据库自增ID！
+            // 你的 Sku 表 specValueIds 字段是 JSON，直接存字符串数组即可
+            const realValueIds = specValueIds; // ✅ 保留原始ID，如 ["1756391709695_0"]
+            const realValueNames = specValueNames;
 
             if (dbSkuMap[skuId]) {
                 await dbSkuMap[skuId].update({
                     specValueIds: realValueIds,
-                    specValueNames,
+                    specValueNames: realValueNames,
                     price: Number(price) || 0,
                     originalPrice: Number(originalPrice) || 0,
                     stock: Number(stock) || 0,
@@ -648,7 +648,7 @@ router.post('/product/save', async (req, res) => {
                     product_id: product.id,
                     skuId,
                     specValueIds: realValueIds,
-                    specValueNames,
+                    specValueNames: realValueNames,
                     price: Number(price) || 0,
                     originalPrice: Number(originalPrice) || 0,
                     stock: Number(stock) || 0,
@@ -658,27 +658,25 @@ router.post('/product/save', async (req, res) => {
         }
 
         // ========== 清理无用数据 ==========
-        const usedValueIds = new Set();
+        const usedOriginalValueIds = new Set();
 
-        // 收集所有被 SKU 使用的 specValueId
+        // 收集所有被 SKU 使用的 specValueId（原始ID）
         for (const sku of skus) {
-            for (let i = 0; i < sku.specValueNames.length; i++) {
-                const tempSpecId = sku.specValueIds[i]?.split('_')?.[0];
-                if (!tempSpecId) continue;
-                const key = `${tempSpecId}_${sku.specValueNames[i]}`;
-                const realId = specValueMap[key];
-                if (realId) usedValueIds.add(realId);
+            for (const id of sku.specValueIds) {
+                usedOriginalValueIds.add(id); // 如 "1756391709695_0"
             }
         }
 
-        // 删除未被使用的 SpecValue
-        const allDbValueIds = new Set(Object.values(dbValueToIdMap));
-        for (const valueId of allDbValueIds) {
-            if (!usedValueIds.has(valueId)) {
-                await SpecValue.destroy({
-                    where: { id: valueId },
-                    transaction: t
-                });
+        // 删除未被使用的 SpecValue（基于 original_value_id）
+        for (const spec of dbSpecs) {
+            for (const value of spec.specValues) {
+                const fullId = `${spec.original_id}_${value.original_value_id}`;
+                if (!usedOriginalValueIds.has(fullId)) {
+                    await SpecValue.destroy({
+                        where: { id: value.id },
+                        transaction: t
+                    });
+                }
             }
         }
 
@@ -709,18 +707,18 @@ router.post('/product/save', async (req, res) => {
         if (commissionLevel >= 1) {
             if (commissionConfig) {
                 await commissionConfig.update({
-                    commission_level: commissionLevel,
-                    first_level_rate: firstLevelRateNum,
-                    second_commission: secondCommissionAmount,
-                    is_active: true
+                    commissionLevel: commissionLevel,
+                    firstLevelRate: firstLevelRateNum,
+                    secondLevelRate: secondCommissionAmount,
+                    isActive: true
                 }, { transaction: t });
             } else {
                 await ProductCommission.create({
                     product_id: product.id,
-                    commission_level: commissionLevel,
-                    first_level_rate: firstLevelRateNum,
-                    second_commission: secondCommissionAmount,
-                    is_active: true
+                    commissionLevel: commissionLevel,
+                    firstLevelRate: firstLevelRateNum,
+                    secondLevelRate: secondCommissionAmount,
+                    isActive: true
                 }, { transaction: t });
             }
         } else if (commissionConfig) {
@@ -733,7 +731,7 @@ router.post('/product/save', async (req, res) => {
         await t.commit();
 
         res.status(200).json({
-            message: productId ? '编辑商品成功' : '新增商品成功',
+            message: action === 'edit' ? '编辑商品成功' : '新增商品成功',
             success: true,
             data: { productId: product.id }
         });
@@ -783,46 +781,45 @@ router.post('/user/check', async (req, res) => {
 router.get('/product/get', async (req, res) => {
     try {
         const { id } = req.query;
-        if (!id) {
+        if (!id || isNaN(id)) {
             return res.status(400).json({
-                message: '商品id不能为空',
+                message: '商品id不能为空且必须为数字',
                 success: false
             });
         }
 
-        const productId = Number(id);
-        if (isNaN(productId)) {
-            return res.status(400).json({
-                message: '商品id必须为数字',
-                success: false
-            });
-        }
-
-        // 1. 查询商品主信息
-        const product = await Product.findByPk(productId, {
+        // 查商品 + 分类 + 规格 + SKU + 分佣
+        const product = await Product.findByPk(id, {
             include: [
                 {
-                    model: SpecName,           // ✅ 正确模型名
-                    as: 'spec_name',           // ✅ 必须和 Product.associate 中定义的 as 一致
-                    order: [['id', 'ASC']],
+                    model: ProductClass,
+                    as: 'productClass',
+                    include: [
+                        {
+                            model: ProductClass,
+                            as: 'parents'
+                        }
+                    ]
+                },
+                {
+                    model: SpecName,
+                    as: 'spec_name',
                     include: [
                         {
                             model: SpecValue,
-                            as: 'specValues',      // ✅ 这个是对的（SpecName.hasMany 中定义的）
-                            order: [['id', 'ASC']]
+                            as: 'specValues'
                         }
                     ]
                 },
                 {
                     model: Sku,
-                    as: 'skus'                 // ✅ 正确
+                    as: 'skus'
                 },
                 {
                     model: ProductCommission,
-                    as: 'commissionConfig'     // ✅ 正确
+                    as: 'commissionConfig'
                 }
             ]
-            // ✅ 注意：整个 include 的 order 不要再写在顶层 include 数组里
         });
 
         if (!product) {
@@ -832,79 +829,69 @@ router.get('/product/get', async (req, res) => {
             });
         }
 
-        // 2. 获取分类路径
+        // ===== 分类处理 =====
         let classIds = [];
-        const childClassId = product.product_class;
-
-        if (childClassId) {
-            const childClass = await ProductClass.findByPk(childClassId);
-            if (childClass) {
-                classIds.push(childClass.id);
-                if (childClass.parent_id) {
-                    classIds.unshift(childClass.parent_id);
-                }
+        if (product.productClass) {
+            if (product.productClass.parent_id) {
+                classIds = [product.productClass.parent_id, product.productClass.id];
+            } else {
+                classIds = [product.productClass.id];
             }
         }
 
-        // 3. 构建规格数据（保持不变）
-        const formattedSpecs = product.spec_name.map(spec => ({
-            id: spec.id,
-            name: spec.name,
-            values: spec.specValues.map(v => v.value)
-        }));
-
-        // ✅ 4. 构建 SKU 数据：增强版，包含 specCombination
-        // 创建：specValueId -> { value, specName }
-        const valueToSpecMap = {};
+        // ===== 规格处理 =====
+        // 聚合同一个规格下的所有值
+        const specMap = {};
         product.spec_name.forEach(spec => {
-            spec.specValues.forEach(v => {
-                valueToSpecMap[v.id] = {
-                    value: v.value,
-                    specName: spec.name
+            if (!specMap[spec.original_id]) {
+                specMap[spec.original_id] = {
+                    id: spec.original_id,
+                    name: spec.property_name,
+                    values: []
                 };
-            });
-        });
-
-        const formattedSkus = product.skus.map(sku => {
-            // 根据 specValueIds，还原出 { 规格名: 规格值 } 的对象
-            const specValueNames = [];
-
-            sku.specValueIds.forEach(valueId => {
-                const mapping = valueToSpecMap[valueId];
-                if (mapping) {
-                    specValueNames.push(mapping.value);
+            }
+            spec.specValues.forEach(v => {
+                if (!specMap[spec.original_id].values.includes(v.value)) {
+                    specMap[spec.original_id].values.push(v.value);
                 }
             });
-
-            return {
-                skuId: sku.skuId,
-                specValueIds: sku.specValueIds.map(id => String(id)), // 保持字符串数组
-                specValueNames, // 纯值数组，用于表格展示
-                price: sku.price,
-                originalPrice: sku.originalPrice,
-                stock: sku.stock,
-                isActive: sku.isActive
-            };
         });
+        const specs = Object.values(specMap);
 
-        // 5. 构建响应数据
+        // ===== SKU =====
+        const skus = product.skus.map(sku => ({
+            skuId: sku.skuId,
+            specValueIds: sku.specValueIds,
+            specValueNames: sku.specValueNames,
+            price: Number(sku.price),
+            originalPrice: Number(sku.originalPrice),
+            stock: Number(sku.stock),
+            isActive: sku.isActive
+        }));
+
+        // ===== 分佣 =====
+        const commissionConfig = product.commissionConfig || {};
+        const distributionLevel = commissionConfig.commissionLevel || 0;
+
         const result = {
+            action: 'edit',
             id: product.id,
-            product_name: product.product_name,
             type: product.type,
             class: classIds,
-            specs: formattedSpecs,
-            skus: formattedSkus, // ✅ 包含 specCombination
-            image: product.image || [],
-            detail: product.detail || [],
-            video: product.video || null,
-            description: product.description || '',
-            creatorsId: product.creatorsId || null,
-            creators_commission: product.creators_commission || 0,
+            skus,
+            image: product.image,
+            video: product.video,
+            detail_image: product.detail || [],
             is_active: product.is_active,
-            distributionLevel: product.commissionConfig?.commissionLevel ?? 0,
-            commission: product.commissionConfig?.firstLevelRate ?? 0,
-            secondCommission: product.commissionConfig?.secondCommission ?? 0
+            distributionLevel,
+            distributionLevel: commissionConfig.commissionLevel || 0,
+            commission: commissionConfig.firstLevelRate || 0,
+            secondCommission: commissionConfig.secondLevelRate || 0,
+            specs,
+            product_name: product.product_name,
+            description: product.description,
+            creatorsId: product.creators_id || null,
+            creators_commission: product.creators_commission || 0
         };
 
         res.status(200).json({
@@ -926,7 +913,7 @@ router.get('/product/get', async (req, res) => {
 // 申请一个商品ID
 router.get('/product/apply', async (req, res) => {
     try {
-        const product_id = snowflake.generate();
+        const product_id = '' + snowflake.generate();
         res.status(200).json({
             data: product_id,
             success: true,

@@ -39,6 +39,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       defaultValue: 0,
       comment: '价格,单位为分'
+    },
+    original_id: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      field: 'original_id',
+      comment: '前端传来的原始规格ID，如 1756391709695'
     }
   }, {
     sequelize,

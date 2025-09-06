@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       product_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
         references: {
           model: 'products',
@@ -36,6 +36,12 @@ module.exports = {
         allowNull: false,
         comment: '价格,单位为分'
       },
+      original_id: {
+        type: Sequelize.STRING(80),
+        allowNull: false,
+        comment: '规格名称id',
+        comment: '前端传来的原始规格ID，如 1756391709695'
+      }
     })
   },
 

@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       // 每个规格值属于一个规格名称
       SpecValue.belongsTo(models.SpecName, {
         foreignKey: 'spec_name_id',
-        as: 'specValues',
+        as: 'specName',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       });
@@ -30,6 +30,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       comment: '规格值'
+    },
+    original_value_id: {
+      type: DataTypes.STRING(10),
+      allowNull: false,
+      comment: '前端传来的原始值ID后缀，如 0, 1'
     }
   }, {
     sequelize,

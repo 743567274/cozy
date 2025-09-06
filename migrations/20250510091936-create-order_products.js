@@ -28,7 +28,7 @@ module.exports = {
         comment: '订单id'
       },
       productId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
         references: {
           model: 'products',
