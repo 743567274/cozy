@@ -13,9 +13,9 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.BIGINT
       },
-      name:{
+      name: {
         type: Sequelize.STRING,
         allowNull: true
       },
@@ -36,7 +36,7 @@ module.exports = {
         comment: '头像'
       },
       superiorId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: true,
         comment: '上级id',
         references: {
@@ -50,19 +50,19 @@ module.exports = {
         allowNull: false,
         comment: '微信用户openid标识'
       },
-      balance:  {
-        type: Sequelize.BIGINT,
+      balance: {
+        type: Sequelize.DECIMAL(5, 2),
         allowNull: false,
-        defaultValue: 0,
-        comment: '余额，单位为分'
+        defaultValue: 0.00,
+        comment: '余额'
       },
-      visit_count:  {
+      visit_count: {
         type: Sequelize.BIGINT,
         allowNull: false,
         defaultValue: 0,
         comment: '访问次数'
       },
-      last_login:  {
+      last_login: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),

@@ -17,7 +17,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       orderId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING(19),
         allowNull: false,
         references: {
           model: 'orders',
@@ -26,7 +26,7 @@ module.exports = {
         comment: '关联订单 ID'
       },
       userId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
         references: {
           model: 'users',

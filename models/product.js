@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       // ✅ 添加：一个商品有多个规格
       Product.hasMany(models.SpecName, {
-        foreignKey: 'productId',
+        foreignKey: 'product_id',
         as: 'spec_name'  // 必须与 include 中的 as 一致
       });
 
@@ -79,9 +79,9 @@ module.exports = (sequelize, DataTypes) => {
       comment: '商品描述'
     },
     top: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false,
       comment: '商品置顶'
     },
     creators_id: {

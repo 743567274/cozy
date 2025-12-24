@@ -48,7 +48,8 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: false,
         comment: '手机壳的模型图'
-      }
+      },
+      
     })
   },
 

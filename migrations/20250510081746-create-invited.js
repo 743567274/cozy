@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       userId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
         references: {
           model: 'users',
@@ -27,7 +27,7 @@ module.exports = {
         comment: '用户id'
       },
       superiorId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: true,
         references: {
           model: 'users',

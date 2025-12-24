@@ -2,6 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const qiniu = require('qiniu');
+// 导入时间定时
+const moment = require('moment');
 
 const mac = new qiniu.auth.digest.Mac(process.env.accessKey, process.env.secretKey);
 
@@ -36,6 +38,9 @@ router.post('/', async (req, res) => {
                 }
                 key = `product_main/${id}/${filename}`;
                 break;
+            case 'phone_model_main': // 手机壳类型主图
+                key = `phone/${filename}`;
+                break;
         }
 
         let options = {
@@ -59,5 +64,9 @@ router.post('/', async (req, res) => {
         });
     }
 });
+
+// 一天执行一次
+
+
 
 module.exports = router;

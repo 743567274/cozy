@@ -303,6 +303,7 @@ router.get('/product', async (req, res) => {
         if (class_id) {
             where.product_class = parseInt(class_id, 10);
         }
+        console.log('查询商品列表条件 -> ', where);
 
         // 根据关键字搜索商品名称或描述
         if (keyword) {
@@ -881,7 +882,7 @@ router.get('/product/get', async (req, res) => {
             skus,
             image: product.image,
             video: product.video,
-            detail_image: product.detail || [],
+            detail: product.detail || [],
             is_active: product.is_active,
             distributionLevel,
             distributionLevel: commissionConfig.commissionLevel || 0,

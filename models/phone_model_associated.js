@@ -34,6 +34,21 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
+    phone_modelId: {  // ✅ 添加
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      comment: '手机型号id'
+    },
+    phone_typeId: {   // ✅ 添加
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      comment: '手机壳类型id'
+    },
+    phone_model_specId: { // ✅ 添加
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      comment: '手机壳规格id'
+    },
     image: {
       type: DataTypes.STRING(255),
       allowNull: false,

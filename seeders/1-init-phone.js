@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const host = 'http://image1.cozyapp.top/'
 
 // 修改为你的 JSON 文件实际路径
 const data = require(path.resolve(__dirname, '../init_data/data.json'));
@@ -24,7 +25,7 @@ module.exports = {
 
     for (const typeName of Object.keys(data)) {
       // 1. 插入壳类型（带图片）
-      const typeImagePath = `/phone/${typeName}/${typeName}.png`;
+      const typeImagePath = host + `phone/${typeName}/${typeName}.png`;
       let [typeInstance] = await PhoneModelType.findOrCreate({
         where: { type_name: typeName },
         defaults: {
@@ -57,7 +58,7 @@ module.exports = {
 
           for (const modelName of Object.keys(modelGroup)) {
             // foreImg 前面添加 /
-            const foreImg = '/' + modelGroup[modelName].foreImg;
+            const foreImg = host + modelGroup[modelName].foreImg;
 
             const brandId = brandInstance.id;
             const modelKey = `${brandId}_${modelName}`;

@@ -14,10 +14,16 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING(19)
       },
-      userId: {
+      type: {
         type: Sequelize.INTEGER,
+        allowNull: false,
+        comment: '订单类型，1为定制订单，2为普通订单',
+        defaultValue: 0
+      },
+      user_id: {
+        type: Sequelize.BIGINT,
         allowNull: false,
         references: {
           model: 'users',
@@ -28,10 +34,10 @@ module.exports = {
         comment: '用户id'
       },
       total_price: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: false,
-        comment: '订单总价,单位为分',
-        defaultValue: 0
+        comment: '订单总价',
+        defaultValue: 0.00
       },
       status: {
         type: Sequelize.INTEGER,
@@ -53,43 +59,48 @@ module.exports = {
           key: 'id'
         }
       },
-      express_name:  {
+      express_name: {
         type: Sequelize.STRING(50),
         allowNull: true,
         comment: '快递名称'
       },
-      express_number:{
+      express_number: {
         type: Sequelize.STRING(50),
         allowNull: true,
         comment: '快递单号'
       },
-      closing_time:{
+      closing_time: {
         type: Sequelize.DATE,
         allowNull: true,
         comment: '完结时间'
       },
-      delivery_time:{
+      delivery_time: {
         type: Sequelize.DATE,
         allowNull: true,
         comment: '发货时间'
       },
-      description:{
+      description: {
         type: Sequelize.STRING(255),
         allowNull: true,
         comment: '订单说明，由用户填写'
       },
-      remarks:  {
+      remarks: {
         type: Sequelize.STRING(255),
         allowNull: true,
         comment: '备注'
       },
-      updatedAt: {
+      customized_data: {
+        type: Sequelize.JSON,
+        allowNull: true,
+        comment: '定制数据'
+      },
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '更新时间'
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),

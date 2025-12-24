@@ -1,36 +1,146 @@
 const express = require('express');
 const router = express.Router();
-const { Order } = require('../../models');
+const { Order, User, Address, OrderProduct, Product, Sku } = require('../../models');
+
+// 查询订单列表
+// routes/order.js 或你的路由文件中
+
+const { Op } = require('sequelize'); // 用于条件查询
+
 
 // 查询订单列表
 router.get('/order', async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
-        const data_order = await Order.findAll({
+        const { page = 1, limit = 10, status } = req.query;
+
+        // 参数校验与转换
+        const pageNum = Math.max(1, parseInt(page, 10)) || 1;
+        const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10))) || 10;
+
+        // 构建查询条件
+        const where = {};
+        if (status !== undefined) {
+            const statusNum = parseInt(status, 10);
+            if (!isNaN(statusNum) && statusNum >= 0 && statusNum <= 7) {
+                where.status = statusNum;
+            }
+        }
+
+        // 查询订单 + 用户 + 地址 + 订单商品 + 商品信息
+        const { rows: orders, count: total } = await Order.findAndCountAll({
+            where,
             include: [
                 {
                     model: User,
-                    attributes: ['id', 'username']
+                    as: 'user',
+                    attributes: ['id', 'name', 'username', 'avatar'],
+                    required: false
+                },
+                {
+                    model: Address,
+                    as: 'address',
+                    required: true
+                },
+                {
+                    model: OrderProduct,
+                    as: 'orderProducts',
+                    include: [
+                        {
+                            model: Product,
+                            as: 'product',
+                            attributes: ['id', 'product_name', 'image']
+                        },
+                        {
+                            model: Sku,
+                            as: 'sku'
+                        }
+                    ]
                 }
             ],
-            offset: (page - 1) * limit,// 页数
-            limit: limit
+            attributes: {
+                exclude: ['password', 'remarks', 'user_id', 'shipping_address'] // 排除敏感或冗余字段
+            },
+            offset: (pageNum - 1) * limitNum,
+            limit: limitNum,
+            order: [['created_at', 'DESC']],
+            distinct: true // 防止因 include 导致 count 重复
         });
-        const count = await Order.count();
+
+        // 成功响应
         res.status(200).json({
-            data: data_order,
             success: true,
-            total: count,
-            message: '查询订单列表成功'
-        })
+            message: '查询订单列表成功',
+            data: orders,
+            current: pageNum,
+            pageSize: limitNum,
+            total: total,
+            totalPages: Math.ceil(total / limitNum)
+        });
     } catch (error) {
+        console.error('[Order List Error]:', error.message, error.stack);
         res.status(500).json({
-            message: '查询订单列表失败',
-            error: error.message,
-            success: false
+            success: false,
+            message: '查询订单列表失败，请稍后重试',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
-})
+});
+
+// 查询订单详情
+router.get('/order/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data_order = await Order.findOne({
+            where: { id },
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['id', 'name'],
+                    required: false
+                },
+                {
+                    model: Address,
+                    as: 'address',
+                    required: true
+                },
+                {
+                    model: OrderProduct,
+                    as: 'orderProducts',
+                    include: [
+                        {
+                            model: Product,
+                            as: 'product',
+                            attributes: ['id', 'product_name', 'image']
+                        },
+                        {
+                            model: Sku,
+                            as: 'sku'
+                        }
+                    ]
+                }
+            ]
+        })
+        if (!data_order) {
+            return res.status(400).json({
+                message: '该订单不存在',
+                success: false
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: '查询订单详情成功',
+            data: data_order
+        });
+    } catch (error) {
+        console.error('[Order List Error]:', error.message, error.stack);
+        res.status(500).json({
+            success: false,
+            message: '查询订单列表失败，请稍后重试',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
 
 // 订单发货
 router.post('/order/delivery', async (req, res) => {

@@ -34,7 +34,19 @@ module.exports = {
         allowNull: false,
         defaultValue: true,
         comment: '手机壳类型状态'
-      }
+      },
+      status: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
+        comment: '状态 1:正常 0:禁用'
+      },
+      price: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0.00,
+        comment: '手机壳价格'
+      },
     })
   },
 

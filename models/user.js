@@ -1,30 +1,40 @@
 'use strict';
+
 const { Model, DataTypes } = require('sequelize');
 const SnowflakeID = require('snowflake-id').default;
-const snowflake = new SnowflakeID({ mid: 1 }); // 机器 ID 自定义
 
-module.exports = (sequelize) => {
+// 统一的 Snowflake 实例
+const snowflake = new SnowflakeID({ mid: 1 });
+
+module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // 自引用关联：一个用户可以有一个上级
+      // 自引用：上级
       User.belongsTo(models.User, {
         as: 'superior',
         foreignKey: 'superiorId'
       });
 
-      // 上级可以有多个下级
+      // 自引用：下级
       User.hasMany(models.User, {
         as: 'subordinates',
         foreignKey: 'superiorId'
+      });
+
+      // 用户 -> 订单
+      User.hasMany(models.Order, {
+        foreignKey: 'userId',
+        as: 'orders'
       });
     }
   }
 
   User.init({
     id: {
-      type: DataTypes.BIGINT, // 使用 BIGINT 存储 Snowflake ID
+      type: DataTypes.STRING(19),
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      comment: 'Snowflake ID'
     },
     name: {
       type: DataTypes.STRING,
@@ -48,21 +58,21 @@ module.exports = (sequelize) => {
       comment: '头像'
     },
     superiorId: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING(19),
       allowNull: true,
-      comment: '上级id'
+      comment: '上级用户ID'
     },
     openid: {
       type: DataTypes.STRING(80),
       allowNull: false,
       unique: true,
-      comment: '微信用户openid标识'
+      comment: '微信用户openid'
     },
     balance: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.DECIMAL(5, 2),
       allowNull: false,
-      defaultValue: 0,
-      comment: '余额，单位为分'
+      defaultValue: 0.00,
+      comment: '余额'
     },
     visit_count: {
       type: DataTypes.BIGINT,
@@ -72,20 +82,24 @@ module.exports = (sequelize) => {
     },
     last_login: {
       type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
       comment: '最后登录时间'
     }
   }, {
     sequelize,
     modelName: 'User',
     tableName: 'users',
-    timestamps: true
+    timestamps: true,      // 自动生成 createdAt -> created_at
+    indexes: [
+      { fields: ['openid'], unique: true },
+      { fields: ['username'], unique: true },
+      { fields: ['superiorId'] }
+    ]
   });
 
-  // 在创建前自动生成 Snowflake ID
+  // 创建前生成 ID
   User.beforeCreate((user) => {
-    user.id = snowflake.generate();
+    user.id = snowflake.generate().toString();
   });
 
   return User;

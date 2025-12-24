@@ -43,7 +43,19 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: true,
       comment: '手机壳类型状态'
-    }
+    },
+    status: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+      comment: '手机壳状态'
+    },
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+      defaultValue: 0.00,
+      comment: '手机壳价格'
+    },
   }, {
     sequelize,
     modelName: 'PhoneModelType',

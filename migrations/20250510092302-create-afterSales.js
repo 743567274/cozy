@@ -10,8 +10,8 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
       },
-      orderId: {
-        type: Sequelize.INTEGER,
+      order_id: {
+        type: Sequelize.STRING(19),
         allowNull: false,
         references: {
           model: 'orders',
@@ -21,8 +21,8 @@ module.exports = {
         onDelete: 'CASCADE',
         comment: '关联订单 ID',
       },
-      userId: {
-        type: Sequelize.INTEGER,
+      user_id: {
+        type: Sequelize.BIGINT,
         allowNull: false,
         references: {
           model: 'users',

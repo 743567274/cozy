@@ -16,8 +16,8 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true
       },
-      userId: {
-        type: Sequelize.INTEGER,
+      user_id: {
+        type: Sequelize.BIGINT,
         allowNull: false,
         comment: '用户id',
         references: {
@@ -70,13 +70,13 @@ module.exports = {
         allowNull: true,
         comment: '创建时间'
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         comment: '创建时间'
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),

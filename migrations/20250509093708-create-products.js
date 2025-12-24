@@ -12,10 +12,9 @@ module.exports = {
     // 这个是商品表
     await queryInterface.createTable('products', {
       id: {
-        allowNull: false,
+        type: Sequelize.BIGINT,
         autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.BIGINT
+        primaryKey: true
       },
       product_name: {
         type: Sequelize.STRING(80),
@@ -70,7 +69,7 @@ module.exports = {
         comment: '商品是否置顶'
       },
       creators_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: true,
         comment: '创建者ID',
         references: {

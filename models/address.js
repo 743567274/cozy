@@ -18,8 +18,8 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
-    userId: {
-      type: DataTypes.INTEGER,
+    user_id: {
+      type: DataTypes.BIGINT,
       allowNull: false,
       comment: '用户id'
     },
@@ -67,25 +67,13 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true,
       comment: '创建时间'
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-      comment: '创建时间'
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-      comment: '更新时间'
     }
   }, {
     sequelize,
     modelName: 'Address',
     tableName: 'address',
     timestamps: false,
-    underscored: true
+    underscored: true,
   });
 
   return Address;
